@@ -32,12 +32,11 @@
             <div class="tab-content active" id="leaves">
                 <div id="calendar"></div>
                 <hr>
-                {% if not readonly %}
                 <a href="{% url 'staff:mark_leave' staff.pk %}" class="btn btn-sm btn-outline-primary mb-2">Mark Leave</a>
-                {% endif %}
                 {% include 'staff/_leave_list.html' %}
             </div>
             <div class="tab-content" id="advances">
+                <a href="{% url 'staff:request_advance' staff.pk %}" class="btn btn-sm btn-outline-warning mb-2">Request Advance</a>
                 {% include 'staff/_advance_list.html' %}
             </div>
             <div class="tab-content" id="salary">

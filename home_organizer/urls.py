@@ -13,6 +13,7 @@ urlpatterns = [
     path('staff/', include('staff.urls')),
     path('kitchen/', include('kitchen.urls')),
     path('tasks/', include('tasks_app.urls')),
+    path('notifications/', include('notifications.urls')),
 ]
 
 if settings.DEBUG:

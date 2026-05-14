@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+<div class="content-area">
+  <div class="page-header">
+    <h1>Notifications</h1>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'notifications:mark_all_read' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success btn-sm">
+          <i class="bi bi-check-all"></i> Mark All Read
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="form-tabs">
+    <a href="{% url 'notifications:list' %}" class="form-tab {% if not current_type %}active{% endif %}">All</a>
+    <a href="{% url 'notifications:list' %}?type=task_assigned" class="form-tab {% if current_type == 'task_assigned' %}active{% endif %}">Task Assigned</a>
+    <a href="{% url 'notifications:list' %}?type=task_overdue" class="form-tab {% if current_type == 'task_overdue' %}active{% endif %}">Overdue</a>
+    <a href="{% url 'notifications:list' %}?type=salary_reminder" class="form-tab {% if current_type == 'salary_reminder' %}active{% endif %}">Salary</a>
+    <a href="{% url 'notifications:list' %}?type=reminder_due" class="form-tab {% if current_type == 'reminder_due' %}active{% endif %}">Reminders</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      {% if notifications %}
+      <div class="notification-list">
+        {% for n in notifications %}
+        <div class="notification-item {% if not n.is_read %}unread{% endif %}" data-pk="{{ n.pk }}">
+          <div class="notif-icon">
+            {% if n.type == 'task_assigned' %}<i class="bi bi-check2-square" style="color:#17a2b8"></i>
+            {% elif n.type == 'task_overdue' %}<i class="bi bi-exclamation-triangle" style="color:#dc3545"></i>
+            {% elif n.type == 'salary_reminder' %}<i class="bi bi-cash-coin" style="color:#28a745"></i>
+            {% elif n.type == 'reminder_due' %}<i class="bi bi-bell" style="color:#ffc107"></i>
+            {% endif %}
+          </div>
+          <div class="notif-body">
+            <div class="notif-title">{{ n.title }}</div>
+            <div class="notif-message">{{ n.message }}</div>
+            <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+          </div>
+          <div class="notif-actions">
+            {% if n.link %}
+            <a href="{{ n.link }}" class="btn btn-sm btn-outline-primary">View</a>
+            {% endif %}
+            {% if not n.is_read %}
+            <form method="post" action="{% url 'notifications:mark_read' n.pk %}" style="display:inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-success mark-read-btn">
+                <i class="bi bi-check"></i>
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted text-center">No notifications yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'staff',
     'kitchen',
     'tasks_app',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'home_organizer.context_processors.greeting',
+                'notifications.context_processors.notifications',
             ],
         },
     },
