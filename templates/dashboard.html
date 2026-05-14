@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1>Dashboard</h1>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-people"></i> Staff</h5>
+                <p class="card-text display-6">{{ staff_count }}</p>
+                <a href="{% url 'staff:list' %}" class="text-white">Manage →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-basket"></i> Pantry Items</h5>
+                <p class="card-text display-6">{{ pantry_count }}</p>
+                <a href="{% url 'kitchen:pantry_list' %}" class="text-white">View →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-list-check"></i> Pending Tasks</h5>
+                <p class="card-text display-6">{{ pending_tasks }}</p>
+                <a href="{% url 'tasks_app:task_dashboard' %}" class="text-white">View →</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bell"></i> Upcoming Reminders</h5>
+                <p class="card-text display-6">{{ upcoming_reminders }}</p>
+                <a href="{% url 'tasks_app:reminder_list' %}" class="text-white">View →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
