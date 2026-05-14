@@ -21,9 +21,29 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="{{ form.task_template.id_for_label }}">Task</label>
-                            {{ form.task_template }}
-                            {% if form.task_template.errors %}<div class="text-danger small mt-1">{{ form.task_template.errors }}</div>{% endif %}
+                            <label for="{{ form.task_name.id_for_label }}">Task Name</label>
+                            {{ form.task_name }}
+                            {% if form.task_name.errors %}<div class="text-danger small mt-1">{{ form.task_name.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.frequency.id_for_label }}">Frequency</label>
+                            {{ form.frequency }}
+                            {% if form.frequency.errors %}<div class="text-danger small mt-1">{{ form.frequency.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group" id="dayOfWeekGroup">
+                            <label for="{{ form.day_of_week.id_for_label }}">Day of Week</label>
+                            {{ form.day_of_week }}
+                            <small class="text-muted">0=Monday, 6=Sunday</small>
+                            {% if form.day_of_week.errors %}<div class="text-danger small mt-1">{{ form.day_of_week.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group" id="dayOfMonthGroup">
+                            <label for="{{ form.day_of_month.id_for_label }}">Day of Month</label>
+                            {{ form.day_of_month }}
+                            <small class="text-muted">1-31</small>
+                            {% if form.day_of_month.errors %}<div class="text-danger small mt-1">{{ form.day_of_month.errors }}</div>{% endif %}
                         </div>
 
                         <div class="form-group">
@@ -81,33 +101,116 @@
 <script>
 const taskData = {{ task_data_json|safe }};
 
-function updatePreview(selectEl) {
-    const pk = parseInt(selectEl.value);
+function updatePreview() {
+    const taskNameInput = document.getElementById('{{ form.task_name.id_for_label }}');
+    const frequencySelect = document.getElementById('{{ form.frequency.id_for_label }}');
+    const dayOfWeekInput = document.getElementById('{{ form.day_of_week.id_for_label }}');
+    const dayOfMonthInput = document.getElementById('{{ form.day_of_month.id_for_label }}');
+    
     const previewCard = document.getElementById('taskPreviewCard');
     const noTaskCard = document.getElementById('noTaskCard');
 
-    if (!pk || !taskData[pk]) {
+    const taskName = taskNameInput ? taskNameInput.value.trim() : '';
+    const frequency = frequencySelect ? frequencySelect.value : '';
+
+    if (!taskName) {
         previewCard.style.display = 'none';
         noTaskCard.style.display = 'block';
         return;
     }
 
-    const t = taskData[pk];
-    document.getElementById('previewName').textContent = t.name;
-    document.getElementById('previewCategory').textContent = t.category;
-    document.getElementById('previewFrequency').textContent = t.frequency;
-    document.getElementById('previewDescription').textContent = t.description;
+    // Find task by case-insensitive name match and frequency
+    let foundTask = null;
+    for (const [pk, task] of Object.entries(taskData)) {
+        if (task.name.toLowerCase() === taskName.toLowerCase() && 
+            (frequency === '' || task.frequency.toLowerCase() === frequency.toLowerCase())) {
+            foundTask = task;
+            break;
+        }
+    }
+
+    if (!foundTask) {
+        previewCard.style.display = 'none';
+        noTaskCard.style.display = 'block';
+        document.getElementById('previewName').textContent = '';
+        document.getElementById('previewCategory').textContent = '';
+        document.getElementById('previewFrequency').textContent = '';
+        document.getElementById('previewDescription').textContent = '';
+        document.getElementById('previewDayOfWeek').textContent = '';
+        document.getElementById('previewDayOfMonth').textContent = '';
+        return;
+    }
+
+    document.getElementById('previewName').textContent = foundTask.name;
+    document.getElementById('previewCategory').textContent = foundTask.category;
+    document.getElementById('previewFrequency').textContent = foundTask.frequency;
+    document.getElementById('previewDescription').textContent = foundTask.description;
+    document.getElementById('previewDayOfWeek').textContent = foundTask.day_of_week !== null ? foundTask.day_of_week : '—';
+    document.getElementById('previewDayOfMonth').textContent = foundTask.day_of_month !== null ? foundTask.day_of_month : '—';
 
     previewCard.style.display = 'block';
     noTaskCard.style.display = 'none';
 }
 
+function toggleDayFields() {
+    const frequencySelect = document.getElementById('{{ form.frequency.id_for_label }}');
+    const dayOfWeekGroup = document.getElementById('dayOfWeekGroup');
+    const dayOfMonthGroup = document.getElementById('dayOfMonthGroup');
+    const dayOfWeekInput = document.getElementById('{{ form.day_of_week.id_for_label }}');
+    const dayOfMonthInput = document.getElementById('{{ form.day_of_month.id_for_label }}');
+    
+    if (!frequencySelect || !dayOfWeekGroup || !dayOfMonthGroup) return;
+    
+    const frequency = frequencySelect.value;
+    
+    // Show/hide based on frequency
+    if (frequency === 'weekly') {
+        dayOfWeekGroup.style.display = 'block';
+        dayOfMonthGroup.style.display = 'none';
+        dayOfWeekInput.required = true;
+        dayOfMonthInput.required = false;
+    } else if (frequency === 'monthly') {
+        dayOfWeekGroup.style.display = 'none';
+        dayOfMonthGroup.style.display = 'block';
+        dayOfWeekInput.required = false;
+        dayOfMonthInput.required = true;
+    } else {
+        // daily or one_time
+        dayOfWeekGroup.style.display = 'none';
+        dayOfMonthGroup.style.display = 'none';
+        dayOfWeekInput.required = false;
+        dayOfMonthInput.required = false;
+    }
+    
+    // Update preview when frequency changes
+    updatePreview();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    const select = document.getElementById('{{ form.task_template.id_for_label }}');
-    if (select) {
-        select.addEventListener('change', function() { updatePreview(this); });
-        // Show preview if editing with pre-selected value
-        if (select.value) updatePreview(select);
+    const taskNameInput = document.getElementById('{{ form.task_name.id_for_label }}');
+    const frequencySelect = document.getElementById('{{ form.frequency.id_for_label }}');
+    
+    if (taskNameInput) {
+        taskNameInput.addEventListener('input', function() { updatePreview(); });
+        taskNameInput.addEventListener('paste', function() { setTimeout(() => updatePreview(), 0); });
+    }
+    
+    if (frequencySelect) {
+        frequencySelect.addEventListener('change', toggleDayFields);
+        // Initialize state
+        toggleDayFields();
+        // Update preview on frequency change
+        frequencySelect.addEventListener('change', updatePreview);
+    }
+    
+    // Also update preview when day fields change
+    const dayOfWeekInput = document.getElementById('{{ form.day_of_week.id_for_label }}');
+    const dayOfMonthInput = document.getElementById('{{ form.day_of_month.id_for_label }}');
+    if (dayOfWeekInput) {
+        dayOfWeekInput.addEventListener('change', updatePreview);
+    }
+    if (dayOfMonthInput) {
+        dayOfMonthInput.addEventListener('change', updatePreview);
     }
 });
 </script>

@@ -37,21 +37,61 @@ def task_assign(request):
             'description': t.description or 'No description provided.',
             'category': t.category.name if t.category else '—',
             'frequency': t.get_frequency_display(),
+            'day_of_week': t.day_of_week,
+            'day_of_month': t.day_of_month,
         }
 
     if request.method == 'POST':
         form = AssignTaskForm(request.POST)
         if form.is_valid():
             staff = form.cleaned_data['staff']
-            template = form.cleaned_data['task_template']
+            task_name = form.cleaned_data['task_name'].strip()
+            frequency = form.cleaned_data['frequency']
+            day_of_week = form.cleaned_data.get('day_of_week')
+            day_of_month = form.cleaned_data.get('day_of_month')
             date = form.cleaned_data['assigned_date']
             notes = form.cleaned_data.get('notes', '')
-            AssignedTask.objects.get_or_create(
-                staff=staff, task_template=template, assigned_date=date,
-                defaults={'is_completed': False, 'notes': notes}
-            )
-            messages.success(request, f'Task assigned to {staff.name}.')
-            return redirect('tasks_app:task_dashboard')
+            
+            # Validate day_of_week/day_of_month based on frequency
+            if frequency == 'weekly' and day_of_week is None:
+                form.add_error('day_of_week', 'Day of week is required for weekly tasks')
+            if frequency == 'monthly' and day_of_month is None:
+                form.add_error('day_of_month', 'Day of month is required for monthly tasks')
+            if frequency in ['daily', 'one_time'] and (day_of_week is not None or day_of_month is not None):
+                form.add_error(None, 'Day of week/month should not be set for daily/one-time tasks')
+            
+            if form.is_valid():
+                # Find or create TaskTemplate by name and frequency
+                template, created = TaskTemplate.objects.get_or_create(
+                    name__iexact=task_name,
+                    frequency=frequency,
+                    defaults={
+                        'day_of_week': day_of_week if frequency == 'weekly' else None,
+                        'day_of_month': day_of_month if frequency == 'monthly' else None,
+                        'category': None
+                    }
+                )
+                
+                # If template existed but day_of_week/day_of_month don't match, update them
+                if not created:
+                    updated = False
+                    if frequency == 'weekly' and template.day_of_week != day_of_week:
+                        template.day_of_week = day_of_week
+                        updated = True
+                    if frequency == 'monthly' and template.day_of_month != day_of_month:
+                        template.day_of_month = day_of_month
+                        updated = True
+                    if updated:
+                        template.save()
+                
+                AssignedTask.objects.get_or_create(
+                    staff=staff, task_template=template, assigned_date=date,
+                    defaults={'is_completed': False, 'notes': notes}
+                )
+                
+                action = "created" if created else "found/updated"
+                messages.success(request, f'Task "{task_name}" ({template.get_frequency_display()}) {action} and assigned to {staff.name}.')
+                return redirect('tasks_app:task_dashboard')
     else:
         form = AssignTaskForm()
     return render(request, 'tasks_app/task_assign.html', {
