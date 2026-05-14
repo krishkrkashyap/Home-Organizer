@@ -10,7 +10,9 @@
             <div class="form-container">
                 <form method="post">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {% for field in form %}
+                        {% include '_form_field.html' %}
+                    {% endfor %}
                     <div class="mt-3 d-flex gap-2">
                         <button type="submit" class="btn btn-success">Save</button>
                         <a href="{% url 'kitchen:inventory_list' %}" class="btn btn-secondary">Cancel</a>

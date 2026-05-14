@@ -35,7 +35,7 @@ class TaskTemplate(models.Model):
 class AssignedTask(models.Model):
     staff = models.ForeignKey(StaffProfile, on_delete=models.CASCADE, related_name='tasks')
     task_template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE)
-    assigned_date = models.DateField()
+    assigned_date = models.DateTimeField()
     is_completed = models.BooleanField(default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)

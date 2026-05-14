@@ -9,7 +9,7 @@ class TaskTemplateForm(forms.ModelForm):
 class AssignTaskForm(forms.Form):
     staff = forms.ModelChoiceField(queryset=None, label='Staff Member')
     task_template = forms.ModelChoiceField(queryset=None, label='Task')
-    assigned_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    assigned_date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
     notes = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Optional notes for this assignment...'}), required=False)
 
     def __init__(self, *args, **kwargs):
