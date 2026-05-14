@@ -49,17 +49,38 @@ class AssignedTaskAdmin(admin.ModelAdmin):
     search_fields = ['staff__name', 'task_template__name', 'notes']
     list_select_related = ['staff', 'task_template__category']
     date_hierarchy = 'assigned_date'
+    autocomplete_fields = ['staff', 'task_template']
     fieldsets = [
         ('Assignment', {'fields': ['staff', 'task_template', 'assigned_date']}),
+        ('Task Details', {'fields': ['task_description', 'task_category', 'task_frequency'], 'classes': ['collapse']}),
         ('Status', {'fields': ['is_completed', 'completed_at', 'notes']}),
     ]
     actions = ['mark_completed', 'mark_pending']
+    readonly_fields = ['task_description', 'task_category', 'task_frequency']
 
     @admin.display(description='Status')
     def status_badge(self, obj):
         if obj.is_completed:
             return format_html('<span style="color:green;font-weight:bold;">&#10003; Completed</span>')
         return format_html('<span style="color:red;font-weight:bold;">&#10007; Pending</span>')
+
+    @admin.display(description='Description')
+    def task_description(self, obj):
+        if not obj or not obj.task_template_id:
+            return '— (select a task above)'
+        return obj.task_template.description or '—'
+
+    @admin.display(description='Category')
+    def task_category(self, obj):
+        if not obj or not obj.task_template_id:
+            return '—'
+        return obj.task_template.category.name if obj.task_template.category else '—'
+
+    @admin.display(description='Frequency')
+    def task_frequency(self, obj):
+        if not obj or not obj.task_template_id:
+            return '—'
+        return obj.task_template.get_frequency_display()
 
     @admin.display(description='Notes')
     def notes_preview(self, obj):

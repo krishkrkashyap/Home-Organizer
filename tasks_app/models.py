@@ -29,7 +29,8 @@ class TaskTemplate(models.Model):
         ordering = ['category', 'name']
 
     def __str__(self):
-        return f'{self.name} ({self.get_frequency_display()})'
+        cat = f' [{self.category.name}]' if self.category else ''
+        return f'{self.name} ({self.get_frequency_display()}){cat}'
 
 class AssignedTask(models.Model):
     staff = models.ForeignKey(StaffProfile, on_delete=models.CASCADE, related_name='tasks')
