@@ -36,3 +36,31 @@ class StaffProfile(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class LeaveRecord(models.Model):
+    LEAVE_TYPES = [('half', 'Half Day'), ('full', 'Full Day')]
+    staff = models.ForeignKey(StaffProfile, on_delete=models.CASCADE, related_name='leaves')
+    date = models.DateField()
+    leave_type = models.CharField(max_length=10, choices=LEAVE_TYPES)
+    note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']
+        unique_together = ['staff', 'date']
+
+    def __str__(self):
+        return f'{self.staff.name} - {self.get_leave_type_display()} - {self.date}'
+
+class AdvanceRequest(models.Model):
+    staff = models.ForeignKey(StaffProfile, on_delete=models.CASCADE, related_name='advances')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    note = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_settled = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.staff.name} - ₹{self.amount}'

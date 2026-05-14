@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Request Advance{% endblock %}
+{% block content %}
+<h1>Request Advance — {{ staff.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Submit</button>
+    <a href="{% url 'staff:detail' staff.pk %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
