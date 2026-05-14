@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .models import StaffProfile, LeaveRecord, AdvanceRequest, SalaryRecord
+from tasks_app.models import AssignedTask
 from .forms import StaffProfileForm, StaffCreateForm, StaffEditForm, LeaveForm, AdvanceForm
 
 @login_required
@@ -128,11 +129,13 @@ def salary_generate(request, pk):
         leaves = LeaveRecord.objects.filter(staff=staff, date__month=month, date__year=year)
         total_leaves = sum(0.5 if l.leave_type == 'half' else 1 for l in leaves)
 
-        # Calculate leave deduction
+        # Calculate leave deduction using actual days in month
         if staff.deduction_type == 'fixed_amount' and staff.deduction_value:
             leave_deduction = float(staff.deduction_value) * total_leaves
         else:
-            daily_rate = float(staff.salary_amount) / 30
+            import calendar
+            days_in_month = calendar.monthrange(year, month)[1]
+            daily_rate = float(staff.salary_amount) / days_in_month
             leave_deduction = daily_rate * total_leaves
 
         # Get unsettled advances
