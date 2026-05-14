@@ -15,6 +15,9 @@ DEDUCTION_CHOICES = [
     ('fixed_amount', 'Fixed Amount per Leave'),
 ]
 
+SALARY_DATE_CHOICES = [(i, str(i)) for i in range(1, 32)]
+SALARY_DATE_CHOICES.insert(0, (0, 'Month End'))
+
 class StaffProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='staff_profile')
     name = models.CharField(max_length=100)
@@ -24,7 +27,7 @@ class StaffProfile(models.Model):
     custom_role = models.CharField(max_length=100, blank=True, help_text='Custom role if not in list')
     photo = models.ImageField(upload_to='staff_photos/', blank=True, null=True)
     salary_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    salary_date = models.IntegerField(help_text='Day of month (1-31)')
+    salary_date = models.IntegerField(choices=SALARY_DATE_CHOICES, default=1, help_text='0 = Month End, 1-31 = specific day')
     deduction_type = models.CharField(max_length=20, choices=DEDUCTION_CHOICES, default='per_day_rate')
     deduction_value = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text='Per-day deduction amount if fixed')
     advance_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)

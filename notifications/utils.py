@@ -98,24 +98,34 @@ def _check_reminders(user, today):
 
 
 def _next_salary_date(day, today):
-    """Calculate the next salary date from today."""
-    if day < 1 or day > 31:
-        return None
+    """Calculate the next salary date from today.
+    0 = Month End (last day of month).
+    """
+    import calendar
     year, month = today.year, today.month
-    try:
-        candidate = date(year, month, day)
-    except ValueError:
-        import calendar
-        last = calendar.monthrange(year, month)[1]
-        candidate = date(year, month, min(day, last))
-    if candidate < today:
-        month += 1
-        if month > 12:
-            month = 1
-            year += 1
+
+    if day == 0:
+        candidate = date(year, month, calendar.monthrange(year, month)[1])
+    elif 1 <= day <= 31:
         try:
             candidate = date(year, month, day)
         except ValueError:
             last = calendar.monthrange(year, month)[1]
             candidate = date(year, month, min(day, last))
+    else:
+        return None
+
+    if candidate < today:
+        month += 1
+        if month > 12:
+            month = 1
+            year += 1
+        if day == 0:
+            candidate = date(year, month, calendar.monthrange(year, month)[1])
+        else:
+            try:
+                candidate = date(year, month, day)
+            except ValueError:
+                last = calendar.monthrange(year, month)[1]
+                candidate = date(year, month, min(day, last))
     return candidate

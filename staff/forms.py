@@ -1,13 +1,17 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import StaffProfile, LeaveRecord, AdvanceRequest
+from .models import StaffProfile, LeaveRecord, AdvanceRequest, SALARY_DATE_CHOICES
 
 
 class StaffProfileForm(forms.ModelForm):
     class Meta:
         model = StaffProfile
         fields = '__all__'
-        widgets = {'salary_date': forms.NumberInput(attrs={'min': 1, 'max': 31})}
+        widgets = {'salary_date': forms.Select(choices=SALARY_DATE_CHOICES)}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['salary_date'].widget = forms.Select(choices=SALARY_DATE_CHOICES)
 
 
 class StaffCreateForm(forms.ModelForm):
@@ -19,7 +23,11 @@ class StaffCreateForm(forms.ModelForm):
         model = StaffProfile
         fields = ['name', 'phone', 'email', 'role', 'custom_role', 'photo',
                   'is_active', 'salary_amount', 'salary_date', 'deduction_type', 'deduction_value']
-        widgets = {'salary_date': forms.NumberInput(attrs={'min': 1, 'max': 31})}
+        widgets = {'salary_date': forms.Select(choices=SALARY_DATE_CHOICES)}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['salary_date'].widget = forms.Select(choices=SALARY_DATE_CHOICES)
 
     def clean_username(self):
         username = self.cleaned_data['username']

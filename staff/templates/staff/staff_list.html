@@ -27,7 +27,7 @@
                             <td>{{ s.name }}</td>
                             <td>{{ s.custom_role|default:s.get_role_display }}</td>
                             <td>₹{{ s.salary_amount }}</td>
-                            <td>{{ s.salary_date }}</td>
+                            <td>{% if s.salary_date == 0 %}Month End{% else %}{{ s.salary_date }}{% endif %}</td>
                             <td>₹{{ s.advance_balance }}</td>
                             <td>{% if s.is_active %}✅{% else %}❌{% endif %}</td>
                             <td>

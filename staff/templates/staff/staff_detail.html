@@ -18,7 +18,7 @@
                 <p><strong>Phone:</strong> {{ staff.phone|default:'—' }}</p>
                 <p><strong>Email:</strong> {{ staff.email|default:'—' }}</p>
                 <p><strong>Salary:</strong> ₹{{ staff.salary_amount }}</p>
-                <p><strong>Salary Date:</strong> {{ staff.salary_date }}</p>
+                <p><strong>Salary Date:</strong> {% if staff.salary_date == 0 %}Month End{% else %}{{ staff.salary_date }}{% endif %}</p>
                 <p><strong>Deduction:</strong> {{ staff.get_deduction_type_display }}</p>
                 <p><strong>Advance Balance:</strong> ₹{{ staff.advance_balance }}</p>
             </div>
