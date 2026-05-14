@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
@@ -26,21 +28,36 @@ def task_list(request):
 
 @login_required
 def task_assign(request):
+    # Build JSON for task details preview
+    templates = TaskTemplate.objects.select_related('category').all()
+    task_data = {}
+    for t in templates:
+        task_data[t.pk] = {
+            'name': t.name,
+            'description': t.description or 'No description provided.',
+            'category': t.category.name if t.category else '—',
+            'frequency': t.get_frequency_display(),
+        }
+
     if request.method == 'POST':
         form = AssignTaskForm(request.POST)
         if form.is_valid():
             staff = form.cleaned_data['staff']
             template = form.cleaned_data['task_template']
             date = form.cleaned_data['assigned_date']
+            notes = form.cleaned_data.get('notes', '')
             AssignedTask.objects.get_or_create(
                 staff=staff, task_template=template, assigned_date=date,
-                defaults={'is_completed': False}
+                defaults={'is_completed': False, 'notes': notes}
             )
             messages.success(request, f'Task assigned to {staff.name}.')
             return redirect('tasks_app:task_dashboard')
     else:
         form = AssignTaskForm()
-    return render(request, 'tasks_app/task_assign.html', {'form': form})
+    return render(request, 'tasks_app/task_assign.html', {
+        'form': form,
+        'task_data_json': json.dumps(task_data),
+    })
 
 
 @login_required

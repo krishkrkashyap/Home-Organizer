@@ -1,23 +1,114 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Assign Task{% endblock %}
 {% block content %}
 <div class="content-area">
     <div class="page-header">
         <h1>Assign Task</h1>
     </div>
-    <div class="card">
-        <div class="card-body">
-            <div class="form-container">
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="mt-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-success">Assign</button>
-                        <a href="{% url 'tasks_app:task_dashboard' %}" class="btn btn-secondary">Cancel</a>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="assignTaskForm">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label for="{{ form.staff.id_for_label }}">Staff Member</label>
+                            {{ form.staff }}
+                            {% if form.staff.errors %}<div class="text-danger small mt-1">{{ form.staff.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.task_template.id_for_label }}">Task</label>
+                            {{ form.task_template }}
+                            {% if form.task_template.errors %}<div class="text-danger small mt-1">{{ form.task_template.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.assigned_date.id_for_label }}">Assigned Date</label>
+                            {{ form.assigned_date }}
+                            {% if form.assigned_date.errors %}<div class="text-danger small mt-1">{{ form.assigned_date.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.notes.id_for_label }}">Notes <small class="text-muted">(optional)</small></label>
+                            {{ form.notes }}
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-check2"></i> Assign</button>
+                            <a href="{% url 'tasks_app:task_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card" id="taskPreviewCard" style="display:none;">
+                <div class="card-header">Task Preview</div>
+                <div class="card-body">
+                    <h4 id="previewName" class="mb-3" style="color:var(--primary);"></h4>
+                    <table class="table table-sm">
+                        <tr>
+                            <th style="width:100px;">Category</th>
+                            <td><span class="badge bg-info" id="previewCategory"></span></td>
+                        </tr>
+                        <tr>
+                            <th>Frequency</th>
+                            <td><span class="badge bg-secondary" id="previewFrequency"></span></td>
+                        </tr>
+                    </table>
+                    <div class="mt-3">
+                        <strong style="font-size:0.85rem;color:var(--text-muted);">DESCRIPTION</strong>
+                        <p id="previewDescription" class="mt-1" style="color:var(--text);line-height:1.6;"></p>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <div class="card" id="noTaskCard">
+                <div class="card-body text-center text-muted py-5">
+                    <i class="bi bi-clipboard-check" style="font-size:2.5rem;display:block;margin-bottom:12px;"></i>
+                    <p>Select a task above to see its details.</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+const taskData = {{ task_data_json|safe }};
+
+function updatePreview(selectEl) {
+    const pk = parseInt(selectEl.value);
+    const previewCard = document.getElementById('taskPreviewCard');
+    const noTaskCard = document.getElementById('noTaskCard');
+
+    if (!pk || !taskData[pk]) {
+        previewCard.style.display = 'none';
+        noTaskCard.style.display = 'block';
+        return;
+    }
+
+    const t = taskData[pk];
+    document.getElementById('previewName').textContent = t.name;
+    document.getElementById('previewCategory').textContent = t.category;
+    document.getElementById('previewFrequency').textContent = t.frequency;
+    document.getElementById('previewDescription').textContent = t.description;
+
+    previewCard.style.display = 'block';
+    noTaskCard.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('{{ form.task_template.id_for_label }}');
+    if (select) {
+        select.addEventListener('change', function() { updatePreview(this); });
+        // Show preview if editing with pre-selected value
+        if (select.value) updatePreview(select);
+    }
+});
+</script>
 {% endblock %}

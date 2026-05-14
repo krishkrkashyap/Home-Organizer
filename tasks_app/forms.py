@@ -10,12 +10,14 @@ class AssignTaskForm(forms.Form):
     staff = forms.ModelChoiceField(queryset=None, label='Staff Member')
     task_template = forms.ModelChoiceField(queryset=None, label='Task')
     assigned_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    notes = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Optional notes for this assignment...'}), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from staff.models import StaffProfile
         self.fields['staff'].queryset = StaffProfile.objects.filter(is_active=True)
-        self.fields['task_template'].queryset = TaskTemplate.objects.all()
+        self.fields['task_template'].queryset = TaskTemplate.objects.select_related('category').all()
+        self.fields['task_template'].label_from_instance = lambda obj: f'{obj.name} ({obj.get_frequency_display()})'
 
 class ReminderForm(forms.ModelForm):
     class Meta:
