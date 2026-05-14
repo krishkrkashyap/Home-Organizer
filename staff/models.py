@@ -11,7 +11,7 @@ ROLE_CHOICES = [
 ]
 
 DEDUCTION_CHOICES = [
-    ('per_day_rate', 'Per Day Rate (Salary ÷ 30)'),
+    ('per_day_rate', 'Per Day Rate (Salary ÷ actual days)'),
     ('fixed_amount', 'Fixed Amount per Leave'),
 ]
 
