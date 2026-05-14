@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}New Grocery List{% endblock %}
+{% block content %}
+<h1>New Grocery List</h1>
+<form method="post" id="groceryForm">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between">
+            <span>Items</span>
+            <button type="button" class="btn btn-sm btn-success" id="addItem">+ Add Item</button>
+        </div>
+        <div class="card-body">
+            <table class="table" id="itemsTable">
+                <thead><tr><th>Item</th><th>Category</th><th>Qty Needed</th><th>Unit</th><th>At Home</th><th>To Buy</th><th></th></tr></thead>
+                <tbody id="itemsBody"></tbody>
+            </table>
+            <textarea name="items_json" id="itemsJson" style="display:none;">[]</textarea>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">Create List</button>
+    <a href="{% url 'kitchen:grocery_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+const pantryDict = {{ pantry_dict|safe }};
+
+document.getElementById('addItem').addEventListener('click', function() {
+    const tbody = document.getElementById('itemsBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><input type="text" class="form-control item-name" list="pantrySuggestions" placeholder="Item name"></td>
+        <td>
+            <select class="form-select item-category">
+                {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}
+            </select>
+        </td>
+        <td><input type="number" class="form-control item-qty" step="0.01" min="0" value="1"></td>
+        <td><input type="text" class="form-control item-unit" value="pieces"></td>
+        <td class="at-home">0</td>
+        <td class="to-buy">0</td>
+        <td><button type="button" class="btn btn-sm btn-danger remove-item">X</button></td>
+    `;
+    tbody.appendChild(row);
+    updateJson();
+});
+
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('item-name') || e.target.classList.contains('item-qty')) {
+        updateAtHome(e.target.closest('tr'));
+        updateJson();
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-item')) {
+        e.target.closest('tr').remove();
+        updateJson();
+    }
+});
+
+function updateAtHome(row) {
+    const name = row.querySelector('.item-name').value.toLowerCase();
+    const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+    const atHome = pantryDict[name] || 0;
+    row.querySelector('.at-home').textContent = atHome;
+    row.querySelector('.to-buy').textContent = Math.max(0, qty - atHome);
+}
+
+function updateJson() {
+    const items = [];
+    document.querySelectorAll('#itemsBody tr').forEach(row => {
+        const name = row.querySelector('.item-name').value;
+        if (name) {
+            items.push({
+                name: name,
+                category_id: row.querySelector('.item-category').value,
+                quantity: parseFloat(row.querySelector('.item-qty').value) || 0,
+                unit: row.querySelector('.item-unit').value,
+            });
+        }
+    });
+    document.getElementById('itemsJson').value = JSON.stringify(items);
+}
+</script>
+<datalist id="pantrySuggestions">
+    {% for p in pantry_items %}<option value="{{ p.name }}">{% endfor %}
+</datalist>
+{% endblock %}
