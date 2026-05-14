@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}{{ staff.name }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
+{% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-md-4">
@@ -25,6 +28,9 @@
         </ul>
         <div class="tab-content mt-3">
             <div class="tab-pane active" id="leaves">
+                <div id="calendar"></div>
+                <hr>
+                <a href="{% url 'staff:mark_leave' staff.pk %}" class="btn btn-sm btn-outline-primary mb-2">Mark Leave</a>
                 {% include 'staff/_leave_list.html' %}
             </div>
             <div class="tab-pane" id="advances">
@@ -36,4 +42,25 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    if (calendarEl) {
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            height: 350,
+            events: '{% url "staff:calendar_data" staff.pk %}',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,dayGridWeek'
+            }
+        });
+        calendar.render();
+    }
+});
+</script>
 {% endblock %}
