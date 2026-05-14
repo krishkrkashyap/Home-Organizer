@@ -3,3 +3,10 @@ __pycache__/
 db.sqlite3
 .DS_Store
 python
+venv/
+.env
+media/
+staticfiles/
+*.egg-info/
+dist/
+
