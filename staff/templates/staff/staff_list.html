@@ -33,6 +33,7 @@
                             <td>
                                 <a href="{% url 'staff:detail' s.pk %}" class="btn btn-sm btn-info">View</a>
                                 <a href="{% url 'staff:edit' s.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'staff:delete' s.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete {{ s.name }}? This will also remove their user account.')">Delete</a>
                             </td>
                         </tr>
                         {% empty %}

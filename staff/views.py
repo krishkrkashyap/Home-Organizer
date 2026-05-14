@@ -54,8 +54,12 @@ def staff_detail(request, pk):
 @login_required
 def staff_delete(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
+    user = staff.user
+    name = staff.name
     staff.delete()
-    messages.success(request, 'Staff deleted.')
+    if user:
+        user.delete()
+    messages.success(request, f'{name} deleted along with their user account.')
     return redirect('staff:list')
 
 @login_required
