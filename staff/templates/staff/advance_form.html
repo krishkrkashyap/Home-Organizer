@@ -1,11 +1,23 @@
 {% extends 'base.html' %}
 {% block title %}Request Advance{% endblock %}
 {% block content %}
-<h1>Request Advance — {{ staff.name }}</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Submit</button>
-    <a href="{% url 'staff:detail' staff.pk %}" class="btn btn-secondary">Cancel</a>
-</form>
+<div class="content-area">
+    <div class="page-header">
+        <h1>Request Advance — {{ staff.name }}</h1>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="form-container">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                        <a href="{% url 'staff:detail' staff.pk %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,41 +1,47 @@
 {% extends 'base.html' %}
 {% block title %}Staff{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Staff Members</h1>
-    <a href="{% url 'staff:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Staff</a>
-</div>
-<div class="table-responsive">
-    <table class="table table-striped table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Salary</th>
-                <th>Salary Date</th>
-                <th>Advance Balance</th>
-                <th>Active</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in staff_members %}
-            <tr>
-                <td>{{ s.name }}</td>
-                <td>{{ s.custom_role|default:s.get_role_display }}</td>
-                <td>₹{{ s.salary_amount }}</td>
-                <td>{{ s.salary_date }}</td>
-                <td>₹{{ s.advance_balance }}</td>
-                <td>{% if s.is_active %}✅{% else %}❌{% endif %}</td>
-                <td>
-                    <a href="{% url 'staff:detail' s.pk %}" class="btn btn-sm btn-info">View</a>
-                    <a href="{% url 'staff:edit' s.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="7" class="text-center">No staff yet.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="content-area">
+    <div class="page-header">
+        <h1>Staff Members</h1>
+        <a href="{% url 'staff:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Staff</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Salary</th>
+                            <th>Salary Date</th>
+                            <th>Advance Balance</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in staff_members %}
+                        <tr>
+                            <td>{{ s.name }}</td>
+                            <td>{{ s.custom_role|default:s.get_role_display }}</td>
+                            <td>₹{{ s.salary_amount }}</td>
+                            <td>{{ s.salary_date }}</td>
+                            <td>₹{{ s.advance_balance }}</td>
+                            <td>{% if s.is_active %}✅{% else %}❌{% endif %}</td>
+                            <td>
+                                <a href="{% url 'staff:detail' s.pk %}" class="btn btn-sm btn-info">View</a>
+                                <a href="{% url 'staff:edit' s.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="text-center">No staff yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

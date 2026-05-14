@@ -3,13 +3,16 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import datetime
+from django.contrib.auth.decorators import login_required
 from .models import StaffProfile, LeaveRecord, AdvanceRequest, SalaryRecord
 from .forms import StaffProfileForm, LeaveForm, AdvanceForm
 
+@login_required
 def staff_list(request):
     staff_members = StaffProfile.objects.all()
     return render(request, 'staff/staff_list.html', {'staff_members': staff_members})
 
+@login_required
 def staff_create(request):
     if request.method == 'POST':
         form = StaffProfileForm(request.POST, request.FILES)
@@ -21,6 +24,7 @@ def staff_create(request):
         form = StaffProfileForm()
     return render(request, 'staff/staff_form.html', {'form': form, 'title': 'Add Staff'})
 
+@login_required
 def staff_edit(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     if request.method == 'POST':
@@ -33,6 +37,7 @@ def staff_edit(request, pk):
         form = StaffProfileForm(instance=staff)
     return render(request, 'staff/staff_form.html', {'form': form, 'title': 'Edit Staff'})
 
+@login_required
 def staff_detail(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     leaves = LeaveRecord.objects.filter(staff=staff).order_by('-date')
@@ -45,12 +50,14 @@ def staff_detail(request, pk):
         'salary_records': salary_records,
     })
 
+@login_required
 def staff_delete(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     staff.delete()
     messages.success(request, 'Staff deleted.')
     return redirect('staff:list')
 
+@login_required
 def mark_leave(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     if request.method == 'POST':
@@ -65,6 +72,7 @@ def mark_leave(request, pk):
         form = LeaveForm()
     return render(request, 'staff/leave_form.html', {'form': form, 'staff': staff})
 
+@login_required
 def request_advance(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     if request.method == 'POST':
@@ -81,6 +89,7 @@ def request_advance(request, pk):
         form = AdvanceForm()
     return render(request, 'staff/advance_form.html', {'form': form, 'staff': staff})
 
+@login_required
 def leave_calendar_data(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     leaves = LeaveRecord.objects.filter(staff=staff)
@@ -95,6 +104,7 @@ def leave_calendar_data(request, pk):
         })
     return JsonResponse(events, safe=False)
 
+@login_required
 def salary_generate(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     today = timezone.now()
@@ -161,6 +171,41 @@ def salary_generate(request, pk):
         'preview': False,
     })
 
+@login_required
 def salary_list(request):
     records = SalaryRecord.objects.all().select_related('staff').order_by('-year', '-month')
     return render(request, 'staff/salary_list.html', {'records': records})
+
+
+# --- Staff Self-Service (read-only) ---
+
+@login_required
+def my_profile(request):
+    """Staff user views own profile (read-only)."""
+    try:
+        staff = request.user.staff_profile
+    except StaffProfile.DoesNotExist:
+        messages.error(request, 'No staff profile linked to your account.')
+        return redirect('dashboard')
+    leaves = LeaveRecord.objects.filter(staff=staff).order_by('-date')
+    advances = AdvanceRequest.objects.filter(staff=staff).order_by('-created_at')
+    salary_records = SalaryRecord.objects.filter(staff=staff).order_by('-year', '-month')
+    return render(request, 'staff/staff_detail.html', {
+        'staff': staff,
+        'leaves': leaves,
+        'advances': advances,
+        'salary_records': salary_records,
+        'readonly': True,
+    })
+
+
+@login_required
+def my_salary(request):
+    """Staff user views own salary records (read-only)."""
+    try:
+        staff = request.user.staff_profile
+    except StaffProfile.DoesNotExist:
+        messages.error(request, 'No staff profile linked to your account.')
+        return redirect('dashboard')
+    records = SalaryRecord.objects.filter(staff=staff).order_by('-year', '-month')
+    return render(request, 'staff/salary_list.html', {'records': records, 'readonly': True})

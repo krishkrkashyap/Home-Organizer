@@ -4,11 +4,16 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
 {% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
+<div class="content-area">
+    <div class="page-header">
+        <h1>{{ staff.name }}</h1>
+        {% if not readonly %}
+        <a href="{% url 'staff:edit' staff.pk %}" class="btn btn-warning">Edit</a>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2" style="align-items: flex-start;">
+        <div class="card" style="min-width: 280px;">
             <div class="card-body">
-                <h3>{{ staff.name }}</h3>
                 <p><strong>Role:</strong> {{ staff.custom_role|default:staff.get_role_display }}</p>
                 <p><strong>Phone:</strong> {{ staff.phone|default:'—' }}</p>
                 <p><strong>Email:</strong> {{ staff.email|default:'—' }}</p>
@@ -16,27 +21,26 @@
                 <p><strong>Salary Date:</strong> {{ staff.salary_date }}</p>
                 <p><strong>Deduction:</strong> {{ staff.get_deduction_type_display }}</p>
                 <p><strong>Advance Balance:</strong> ₹{{ staff.advance_balance }}</p>
-                <a href="{% url 'staff:edit' staff.pk %}" class="btn btn-warning">Edit</a>
             </div>
         </div>
-    </div>
-    <div class="col-md-8">
-        <ul class="nav nav-tabs" id="staffTabs">
-            <li class="nav-item"><a class="nav-link active" href="#leaves" data-bs-toggle="tab">Leaves</a></li>
-            <li class="nav-item"><a class="nav-link" href="#advances" data-bs-toggle="tab">Advances</a></li>
-            <li class="nav-item"><a class="nav-link" href="#salary" data-bs-toggle="tab">Salary</a></li>
-        </ul>
-        <div class="tab-content mt-3">
-            <div class="tab-pane active" id="leaves">
+        <div style="flex: 1;">
+            <div class="tabs">
+                <a class="tab-link active" href="#leaves">Leaves</a>
+                <a class="tab-link" href="#advances">Advances</a>
+                <a class="tab-link" href="#salary">Salary</a>
+            </div>
+            <div class="tab-content active" id="leaves">
                 <div id="calendar"></div>
                 <hr>
+                {% if not readonly %}
                 <a href="{% url 'staff:mark_leave' staff.pk %}" class="btn btn-sm btn-outline-primary mb-2">Mark Leave</a>
+                {% endif %}
                 {% include 'staff/_leave_list.html' %}
             </div>
-            <div class="tab-pane" id="advances">
+            <div class="tab-content" id="advances">
                 {% include 'staff/_advance_list.html' %}
             </div>
-            <div class="tab-pane" id="salary">
+            <div class="tab-content" id="salary">
                 {% include 'staff/_salary_list.html' %}
             </div>
         </div>
@@ -47,6 +51,17 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Tab switching
+    document.querySelectorAll('.tab-link').forEach(function(tab) {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-link').forEach(function(t) { t.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+            this.classList.add('active');
+            document.querySelector(this.getAttribute('href')).classList.add('active');
+        });
+    });
+    // FullCalendar
     var calendarEl = document.getElementById('calendar');
     if (calendarEl) {
         var calendar = new FullCalendar.Calendar(calendarEl, {

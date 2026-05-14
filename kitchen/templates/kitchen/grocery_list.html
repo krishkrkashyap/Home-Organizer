@@ -1,28 +1,34 @@
 {% extends 'base.html' %}
 {% block title %}Grocery Lists{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Grocery Lists</h1>
-    <a href="{% url 'kitchen:grocery_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New List</a>
-</div>
-<div class="table-responsive">
-    <table class="table table-hover">
-        <thead class="table-dark">
-            <tr><th>#</th><th>Created By</th><th>Date</th><th>Items</th><th>Purchased</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-            {% for gl in lists %}
-            <tr>
-                <td>{{ gl.id }}</td>
-                <td>{{ gl.created_by.name|default:'—' }}</td>
-                <td>{{ gl.created_at|date }}</td>
-                <td>{{ gl.items.count }}</td>
-                <td>{% if gl.is_purchased %}✅{% else %}❌{% endif %}</td>
-                <td><a href="{% url 'kitchen:grocery_detail' gl.pk %}" class="btn btn-sm btn-info">View</a></td>
-            </tr>
-            {% empty %}<tr><td colspan="6" class="text-center">No lists.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="content-area">
+    <div class="page-header">
+        <h1>Grocery Lists</h1>
+        <a href="{% url 'kitchen:grocery_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New List</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr><th>#</th><th>Created By</th><th>Date</th><th>Items</th><th>Purchased</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for gl in lists %}
+                        <tr>
+                            <td>{{ gl.id }}</td>
+                            <td>{{ gl.created_by.name|default:'—' }}</td>
+                            <td>{{ gl.created_at|date }}</td>
+                            <td>{{ gl.items.count }}</td>
+                            <td>{% if gl.is_purchased %}✅{% else %}❌{% endif %}</td>
+                            <td><a href="{% url 'kitchen:grocery_detail' gl.pk %}" class="btn btn-sm btn-info">View</a></td>
+                        </tr>
+                        {% empty %}<tr><td colspan="6" class="text-center">No lists.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

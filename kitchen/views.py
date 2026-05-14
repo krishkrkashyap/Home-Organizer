@@ -2,14 +2,19 @@ import json
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from .models import PantryItem, InventoryItem, GroceryList, GroceryItem, Category, MenuPlan
 from .forms import PantryItemForm, InventoryItemForm, GroceryListForm, GroceryItemForm, MenuPlanForm
 
 # --- Pantry ---
+
+@login_required
 def pantry_list(request):
     items = PantryItem.objects.select_related('category').all()
     return render(request, 'kitchen/pantry_list.html', {'items': items})
 
+
+@login_required
 def pantry_create(request):
     if request.method == 'POST':
         form = PantryItemForm(request.POST)
@@ -21,6 +26,8 @@ def pantry_create(request):
         form = PantryItemForm()
     return render(request, 'kitchen/pantry_form.html', {'form': form, 'title': 'Add Pantry Item'})
 
+
+@login_required
 def pantry_edit(request, pk):
     item = get_object_or_404(PantryItem, pk=pk)
     if request.method == 'POST':
@@ -33,6 +40,8 @@ def pantry_edit(request, pk):
         form = PantryItemForm(instance=item)
     return render(request, 'kitchen/pantry_form.html', {'form': form, 'title': 'Edit Pantry Item'})
 
+
+@login_required
 def pantry_delete(request, pk):
     item = get_object_or_404(PantryItem, pk=pk)
     item.delete()
@@ -40,10 +49,14 @@ def pantry_delete(request, pk):
     return redirect('kitchen:pantry_list')
 
 # --- Inventory ---
+
+@login_required
 def inventory_list(request):
     items = InventoryItem.objects.all()
     return render(request, 'kitchen/inventory_list.html', {'items': items})
 
+
+@login_required
 def inventory_create(request):
     if request.method == 'POST':
         form = InventoryItemForm(request.POST)
@@ -55,6 +68,8 @@ def inventory_create(request):
         form = InventoryItemForm()
     return render(request, 'kitchen/inventory_form.html', {'form': form, 'title': 'Add Inventory Item'})
 
+
+@login_required
 def inventory_edit(request, pk):
     item = get_object_or_404(InventoryItem, pk=pk)
     if request.method == 'POST':
@@ -67,6 +82,8 @@ def inventory_edit(request, pk):
         form = InventoryItemForm(instance=item)
     return render(request, 'kitchen/inventory_form.html', {'form': form, 'title': 'Edit Inventory Item'})
 
+
+@login_required
 def inventory_delete(request, pk):
     item = get_object_or_404(InventoryItem, pk=pk)
     item.delete()
@@ -74,10 +91,14 @@ def inventory_delete(request, pk):
     return redirect('kitchen:inventory_list')
 
 # --- Grocery ---
+
+@login_required
 def grocery_list(request):
     lists = GroceryList.objects.prefetch_related('items').all().order_by('-created_at')
     return render(request, 'kitchen/grocery_list.html', {'lists': lists})
 
+
+@login_required
 def grocery_create(request):
     if request.method == 'POST':
         form = GroceryListForm(request.POST)
@@ -111,10 +132,14 @@ def grocery_create(request):
         'pantry_dict': json.dumps(pantry_dict),
     })
 
+
+@login_required
 def grocery_detail(request, pk):
     grocery = get_object_or_404(GroceryList.objects.prefetch_related('items__category'), pk=pk)
     return render(request, 'kitchen/grocery_detail.html', {'grocery': grocery})
 
+
+@login_required
 def grocery_purchase_item(request, pk):
     item = get_object_or_404(GroceryItem, pk=pk)
     item.is_purchased = True
@@ -124,6 +149,8 @@ def grocery_purchase_item(request, pk):
     pantry.save()
     return JsonResponse({'success': True})
 
+
+@login_required
 def grocery_mark_purchased(request, pk):
     grocery = get_object_or_404(GroceryList, pk=pk)
     grocery.is_purchased = True
@@ -140,10 +167,14 @@ def grocery_mark_purchased(request, pk):
     return redirect('kitchen:grocery_detail', pk=grocery.pk)
 
 # --- Menu Plan ---
+
+@login_required
 def menu_list(request):
     menus = MenuPlan.objects.select_related('cook').all().order_by('-date')
     return render(request, 'kitchen/menu_list.html', {'menus': menus})
 
+
+@login_required
 def menu_create(request):
     if request.method == 'POST':
         form = MenuPlanForm(request.POST)
@@ -155,6 +186,8 @@ def menu_create(request):
         form = MenuPlanForm()
     return render(request, 'kitchen/menu_form.html', {'form': form, 'title': 'Create Menu Plan'})
 
+
+@login_required
 def menu_edit(request, pk):
     menu = get_object_or_404(MenuPlan, pk=pk)
     if request.method == 'POST':
@@ -167,6 +200,8 @@ def menu_edit(request, pk):
         form = MenuPlanForm(instance=menu)
     return render(request, 'kitchen/menu_form.html', {'form': form, 'title': 'Edit Menu Plan'})
 
+
+@login_required
 def menu_toggle_step(request, pk, step_num):
     menu = get_object_or_404(MenuPlan, pk=pk)
     steps = menu.steps

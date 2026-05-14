@@ -1,53 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}Generate Salary{% endblock %}
 {% block content %}
-<h1>Salary — {{ staff.name }}</h1>
-<form method="post">
-    {% csrf_token %}
-    <div class="row mb-3">
-        <div class="col-md-3">
-            <label>Month</label>
-            <select name="month" class="form-select">
-                {% for m in "123456789"|make_list %}{% with forloop.counter as mn %}
-                <option value="{{ mn }}" {% if mn == month %}selected{% endif %}>{{ mn }}</option>
-                {% endwith %}{% endfor %}
-                <option value="10" {% if month == 10 %}selected{% endif %}>10</option>
-                <option value="11" {% if month == 11 %}selected{% endif %}>11</option>
-                <option value="12" {% if month == 12 %}selected{% endif %}>12</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label>Year</label>
-            <input type="number" name="year" class="form-control" value="{{ year }}">
-        </div>
-        <div class="col-md-3 align-self-end">
-            <button type="submit" class="btn btn-primary">Calculate</button>
+<div class="content-area">
+    <div class="page-header">
+        <h1>Salary — {{ staff.name }}</h1>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="form-container">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2 align-items-end">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Month</label>
+                            <select name="month">
+                                {% for m in "123456789"|make_list %}{% with forloop.counter as mn %}
+                                <option value="{{ mn }}" {% if mn == month %}selected{% endif %}>{{ mn }}</option>
+                                {% endwith %}{% endfor %}
+                                <option value="10" {% if month == 10 %}selected{% endif %}>10</option>
+                                <option value="11" {% if month == 11 %}selected{% endif %}>11</option>
+                                <option value="12" {% if month == 12 %}selected{% endif %}>12</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Year</label>
+                            <input type="number" name="year" value="{{ year }}">
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary">Calculate</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</form>
 
-{% if record %}
-<div class="card mt-3">
-    <div class="card-header"><strong>Salary Preview — {{ month }}/{{ year }}</strong></div>
-    <div class="card-body">
-        <table class="table">
-            <tr><td>Gross Salary</td><td>₹{{ record.gross_salary }}</td></tr>
-            <tr><td>Total Leaves (half=0.5)</td><td>{{ record.total_leaves }}</td></tr>
-            <tr><td>Leave Deduction</td><td>− ₹{{ record.leave_deduction|floatformat:2 }}</td></tr>
-            <tr><td>Advance Deduction</td><td>− ₹{{ record.advance_deduction|floatformat:2 }}</td></tr>
-            <tr class="table-success"><th>Net Salary</th><th>₹{{ record.net_salary|floatformat:2 }}</th></tr>
-        </table>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="month" value="{{ month }}">
-            <input type="hidden" name="year" value="{{ year }}">
-            <button type="submit" name="confirm_paid" class="btn btn-success" 
-                onclick="return confirm('Confirm payment of ₹{{ record.net_salary|floatformat:2 }}?')">
-                <i class="bi bi-check-circle"></i> Confirm & Pay
-            </button>
-            <a href="{% url 'staff:detail' staff.pk %}" class="btn btn-secondary">Cancel</a>
-        </form>
+    {% if record %}
+    <div class="card">
+        <div class="card-header"><strong>Salary Preview — {{ month }}/{{ year }}</strong></div>
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <tr><td>Gross Salary</td><td>₹{{ record.gross_salary }}</td></tr>
+                    <tr><td>Total Leaves (half=0.5)</td><td>{{ record.total_leaves }}</td></tr>
+                    <tr><td>Leave Deduction</td><td>− ₹{{ record.leave_deduction|floatformat:2 }}</td></tr>
+                    <tr><td>Advance Deduction</td><td>− ₹{{ record.advance_deduction|floatformat:2 }}</td></tr>
+                    <tr class="table-success"><th>Net Salary</th><th>₹{{ record.net_salary|floatformat:2 }}</th></tr>
+                </table>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="month" value="{{ month }}">
+                <input type="hidden" name="year" value="{{ year }}">
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" name="confirm_paid" class="btn btn-success" 
+                        onclick="return confirm('Confirm payment of ₹{{ record.net_salary|floatformat:2 }}?')">
+                        <i class="bi bi-check-circle"></i> Confirm & Pay
+                    </button>
+                    <a href="{% url 'staff:detail' staff.pk %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}

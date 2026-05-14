@@ -1,5 +1,6 @@
-<table class="table table-sm">
-    <tr><th>Date</th><th>Amount</th><th>Note</th><th>Settled</th></tr>
+<table class="table">
+    <thead><tr><th>Date</th><th>Amount</th><th>Note</th><th>Settled</th></tr></thead>
+    <tbody>
     {% for a in advances %}
     <tr>
         <td>{{ a.created_at|date }}</td>
@@ -9,4 +10,5 @@
     </tr>
     {% empty %}<tr><td colspan="4" class="text-center">No advances.</td></tr>
     {% endfor %}
+    </tbody>
 </table>

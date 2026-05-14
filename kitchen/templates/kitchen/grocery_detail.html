@@ -1,41 +1,47 @@
 {% extends 'base.html' %}
 {% block title %}Grocery #{{ grocery.id }}{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Grocery List #{{ grocery.id }}</h1>
-    <div>
-        {% if not grocery.is_purchased %}
-        <a href="{% url 'kitchen:grocery_purchase' grocery.pk %}" class="btn btn-success" onclick="return confirm('Mark all as purchased?')">
-            <i class="bi bi-check-all"></i> Mark All Purchased
-        </a>
-        {% endif %}
-        <a href="{% url 'kitchen:grocery_list' %}" class="btn btn-secondary">Back</a>
+<div class="content-area">
+    <div class="page-header">
+        <h1>Grocery List #{{ grocery.id }}</h1>
+        <div class="d-flex gap-2">
+            {% if not grocery.is_purchased %}
+            <a href="{% url 'kitchen:grocery_purchase' grocery.pk %}" class="btn btn-success" onclick="return confirm('Mark all as purchased?')">
+                <i class="bi bi-check-all"></i> Mark All Purchased
+            </a>
+            {% endif %}
+            <a href="{% url 'kitchen:grocery_list' %}" class="btn btn-secondary">Back</a>
+        </div>
     </div>
-</div>
-<p><strong>Created:</strong> {{ grocery.created_at|date:"M d, Y H:i" }} by {{ grocery.created_by.name|default:'—' }}</p>
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead class="table-dark">
-            <tr><th>Item</th><th>Category</th><th>Needed</th><th>At Home</th><th>To Buy</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-            {% for item in grocery.items.all %}
-            <tr class="{% if item.is_purchased %}table-success{% endif %}">
-                <td>{{ item.name }}</td>
-                <td>{{ item.category.name|default:'—' }}</td>
-                <td>{{ item.quantity_needed }} {{ item.unit }}</td>
-                <td>{{ item.quantity_at_home }} {{ item.unit }}</td>
-                <td><strong>{{ item.quantity_to_buy }} {{ item.unit }}</strong></td>
-                <td>
-                    {% if item.is_purchased %}
-                    ✅ Purchased
-                    {% else %}
-                    <a href="{% url 'kitchen:grocery_item_purchase' item.pk %}" class="btn btn-sm btn-outline-success">Mark</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <p><strong>Created:</strong> {{ grocery.created_at|date:"M d, Y H:i" }} by {{ grocery.created_by.name|default:'—' }}</p>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr><th>Item</th><th>Category</th><th>Needed</th><th>At Home</th><th>To Buy</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in grocery.items.all %}
+                        <tr class="{% if item.is_purchased %}table-success{% endif %}">
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.category.name|default:'—' }}</td>
+                            <td>{{ item.quantity_needed }} {{ item.unit }}</td>
+                            <td>{{ item.quantity_at_home }} {{ item.unit }}</td>
+                            <td><strong>{{ item.quantity_to_buy }} {{ item.unit }}</strong></td>
+                            <td>
+                                {% if item.is_purchased %}
+                                ✅ Purchased
+                                {% else %}
+                                <a href="{% url 'kitchen:grocery_item_purchase' item.pk %}" class="btn btn-sm btn-outline-success">Mark</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,5 +1,6 @@
-<table class="table table-sm">
-    <tr><th>Month</th><th>Gross</th><th>Leaves Deducted</th><th>Advance Deducted</th><th>Net</th><th>Paid</th></tr>
+<table class="table">
+    <thead><tr><th>Month</th><th>Gross</th><th>Leaves Deducted</th><th>Advance Deducted</th><th>Net</th><th>Paid</th></tr></thead>
+    <tbody>
     {% for s in salary_records %}
     <tr>
         <td>{{ s.month }}/{{ s.year }}</td>
@@ -11,4 +12,5 @@
     </tr>
     {% empty %}<tr><td colspan="6" class="text-center">No salary records.</td></tr>
     {% endfor %}
+    </tbody>
 </table>

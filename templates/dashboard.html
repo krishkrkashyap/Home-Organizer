@@ -1,42 +1,50 @@
 {% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard — Home Organizer{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-12 mb-4">
-        <h1>Dashboard</h1>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-primary mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-people"></i> Staff</h5>
-                <p class="card-text display-6">{{ staff_count }}</p>
-                <a href="{% url 'staff:list' %}" class="text-white">Manage →</a>
-            </div>
+<div class="content-area">
+    <div class="stats-grid">
+        <div class="stat-card primary">
+            <span class="stat-icon">👥</span>
+            <div class="stat-label">Total Staff</div>
+            <div class="stat-value">{{ staff_count }}</div>
+            <a href="{% url 'staff:list' %}" class="stat-link">Manage Staff →</a>
+        </div>
+        <div class="stat-card success">
+            <span class="stat-icon">🥫</span>
+            <div class="stat-label">Pantry Items</div>
+            <div class="stat-value">{{ pantry_count }}</div>
+            <a href="{% url 'kitchen:pantry_list' %}" class="stat-link">View Pantry →</a>
+        </div>
+        <div class="stat-card warning">
+            <span class="stat-icon">📋</span>
+            <div class="stat-label">Pending Tasks</div>
+            <div class="stat-value">{{ pending_tasks }}</div>
+            <a href="{% url 'tasks_app:task_dashboard' %}" class="stat-link">View Tasks →</a>
+        </div>
+        <div class="stat-card info">
+            <span class="stat-icon">🔔</span>
+            <div class="stat-label">Active Reminders</div>
+            <div class="stat-value">{{ upcoming_reminders }}</div>
+            <a href="{% url 'tasks_app:reminder_list' %}" class="stat-link">View Reminders →</a>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-bg-success mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-basket"></i> Pantry Items</h5>
-                <p class="card-text display-6">{{ pantry_count }}</p>
-                <a href="{% url 'kitchen:pantry_list' %}" class="text-white">View →</a>
-            </div>
+
+    <div class="card">
+        <div class="card-header">
+            <span>Quick Actions</span>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-warning mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-list-check"></i> Pending Tasks</h5>
-                <p class="card-text display-6">{{ pending_tasks }}</p>
-                <a href="{% url 'tasks_app:task_dashboard' %}" class="text-white">View →</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-bg-info mb-3">
-            <div class="card-body">
-                <h5 class="card-title"><i class="bi bi-bell"></i> Upcoming Reminders</h5>
-                <p class="card-text display-6">{{ upcoming_reminders }}</p>
-                <a href="{% url 'tasks_app:reminder_list' %}" class="text-white">View →</a>
+        <div class="card-body">
+            <div class="d-flex gap-2" style="flex-wrap: wrap;">
+                <a href="{% url 'staff:create' %}" class="btn btn-primary"><i class="bi bi-person-plus"></i> Add Staff</a>
+                <a href="{% url 'staff:salary_list' %}" class="btn btn-success"><i class="bi bi-cash-coin"></i> Salaries</a>
+                <a href="{% url 'kitchen:pantry_create' %}" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Add Pantry Item</a>
+                <a href="{% url 'kitchen:grocery_create' %}" class="btn btn-success"><i class="bi bi-cart-plus"></i> New Grocery List</a>
+                <a href="{% url 'kitchen:inventory_create' %}" class="btn btn-info"><i class="bi bi-plus-square"></i> Add Inventory</a>
+                <a href="{% url 'kitchen:menu_create' %}" class="btn btn-warning"><i class="bi bi-bookmark-plus"></i> New Menu Plan</a>
+                <a href="{% url 'tasks_app:task_assign' %}" class="btn btn-primary"><i class="bi bi-check2-square"></i> Assign Task</a>
+                <a href="{% url 'tasks_app:reminder_create' %}" class="btn btn-info"><i class="bi bi-bell-plus"></i> Add Reminder</a>
             </div>
         </div>
     </div>

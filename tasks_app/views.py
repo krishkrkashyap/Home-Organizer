@@ -1,9 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from .models import TaskTemplate, AssignedTask, Reminder, TaskCategory
 from .forms import TaskTemplateForm, AssignTaskForm, ReminderForm
 
+
+@login_required
 def task_dashboard(request):
     today = timezone.now().date()
     today_tasks = AssignedTask.objects.filter(assigned_date=today).select_related('staff', 'task_template', 'task_template__category')
@@ -14,10 +17,14 @@ def task_dashboard(request):
         'pending_tasks': pending_tasks,
     })
 
+
+@login_required
 def task_list(request):
     tasks = AssignedTask.objects.all().select_related('staff', 'task_template').order_by('-assigned_date')
     return render(request, 'tasks_app/task_list.html', {'tasks': tasks})
 
+
+@login_required
 def task_assign(request):
     if request.method == 'POST':
         form = AssignTaskForm(request.POST)
@@ -35,6 +42,8 @@ def task_assign(request):
         form = AssignTaskForm()
     return render(request, 'tasks_app/task_assign.html', {'form': form})
 
+
+@login_required
 def task_toggle(request, pk):
     task = get_object_or_404(AssignedTask, pk=pk)
     task.is_completed = not task.is_completed
@@ -43,6 +52,8 @@ def task_toggle(request, pk):
     messages.success(request, f'Task {"completed" if task.is_completed else "reopened"}.')
     return redirect(request.META.get('HTTP_REFERER', 'tasks_app:task_dashboard'))
 
+
+@login_required
 def task_delete(request, pk):
     task = get_object_or_404(AssignedTask, pk=pk)
     task.delete()
@@ -50,10 +61,14 @@ def task_delete(request, pk):
     return redirect('tasks_app:task_dashboard')
 
 # --- Reminders ---
+
+@login_required
 def reminder_list(request):
     reminders = Reminder.objects.all().order_by('due_date')
     return render(request, 'tasks_app/reminder_list.html', {'reminders': reminders, 'today': timezone.now().date()})
 
+
+@login_required
 def reminder_create(request):
     if request.method == 'POST':
         form = ReminderForm(request.POST)
@@ -65,6 +80,8 @@ def reminder_create(request):
         form = ReminderForm()
     return render(request, 'tasks_app/reminder_form.html', {'form': form, 'title': 'Add Reminder'})
 
+
+@login_required
 def reminder_edit(request, pk):
     reminder = get_object_or_404(Reminder, pk=pk)
     if request.method == 'POST':
@@ -77,12 +94,16 @@ def reminder_edit(request, pk):
         form = ReminderForm(instance=reminder)
     return render(request, 'tasks_app/reminder_form.html', {'form': form, 'title': 'Edit Reminder'})
 
+
+@login_required
 def reminder_toggle(request, pk):
     reminder = get_object_or_404(Reminder, pk=pk)
     reminder.is_completed = not reminder.is_completed
     reminder.save()
     return redirect('tasks_app:reminder_list')
 
+
+@login_required
 def reminder_delete(request, pk):
     reminder = get_object_or_404(Reminder, pk=pk)
     reminder.delete()

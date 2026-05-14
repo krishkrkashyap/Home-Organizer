@@ -1,5 +1,6 @@
-<table class="table table-sm">
-    <tr><th>Date</th><th>Type</th><th>Note</th></tr>
+<table class="table">
+    <thead><tr><th>Date</th><th>Type</th><th>Note</th></tr></thead>
+    <tbody>
     {% for l in leaves %}
     <tr>
         <td>{{ l.date }}</td>
@@ -8,4 +9,5 @@
     </tr>
     {% empty %}<tr><td colspan="3" class="text-center">No leaves.</td></tr>
     {% endfor %}
+    </tbody>
 </table>

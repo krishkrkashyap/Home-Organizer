@@ -1,31 +1,37 @@
 {% extends 'base.html' %}
 {% block title %}Pantry{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Pantry Stock</h1>
-    <a href="{% url 'kitchen:pantry_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Item</a>
-</div>
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead class="table-dark">
-            <tr><th>Name</th><th>Category</th><th>Quantity</th><th>Unit</th><th>Status</th><th>Actions</th></tr>
-        </thead>
-        <tbody>
-            {% for item in items %}
-            <tr>
-                <td>{{ item.name }}</td>
-                <td>{{ item.category|default:'—' }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.unit }}</td>
-                <td>{% if item.is_low %}<span class="badge bg-danger">Low Stock</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}</td>
-                <td>
-                    <a href="{% url 'kitchen:pantry_edit' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
-                    <a href="{% url 'kitchen:pantry_delete' item.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
-                </td>
-            </tr>
-            {% empty %}<tr><td colspan="6" class="text-center">No items.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="content-area">
+    <div class="page-header">
+        <h1>Pantry Stock</h1>
+        <a href="{% url 'kitchen:pantry_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Item</a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr><th>Name</th><th>Category</th><th>Quantity</th><th>Unit</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.category|default:'—' }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td>{% if item.is_low %}<span class="badge bg-danger">Low Stock</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}</td>
+                            <td>
+                                <a href="{% url 'kitchen:pantry_edit' item.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'kitchen:pantry_delete' item.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
+                            </td>
+                        </tr>
+                        {% empty %}<tr><td colspan="6" class="text-center">No items.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
