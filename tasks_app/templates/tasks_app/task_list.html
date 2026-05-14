@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}All Tasks{% endblock %}
+{% block content %}
+<h1>All Tasks</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr><th>Staff</th><th>Task</th><th>Date</th><th>Status</th><th>Completed At</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.staff.name }}</td>
+                <td>{{ task.task_template.name }}</td>
+                <td>{{ task.assigned_date }}</td>
+                <td>{% if task.is_completed %}✅{% else %}❌{% endif %}</td>
+                <td>{{ task.completed_at|default:'—' }}</td>
+                <td>
+                    <a href="{% url 'tasks_app:task_toggle' task.pk %}" class="btn btn-sm btn-{% if task.is_completed %}warning{% else %}success{% endif %}">
+                        {% if task.is_completed %}Reopen{% else %}Complete{% endif %}
+                    </a>
+                </td>
+            </tr>
+            {% empty %}<tr><td colspan="6" class="text-center">No tasks.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

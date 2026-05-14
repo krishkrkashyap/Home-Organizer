@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Reminders{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>My Reminders</h1>
+    <a href="{% url 'tasks_app:reminder_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Reminder</a>
+</div>
+<div class="row">
+    {% for reminder in reminders %}
+    <div class="col-md-4 mb-3">
+        <div class="card {% if reminder.is_completed %}text-bg-light{% elif reminder.due_date < today %}border-danger{% endif %}">
+            <div class="card-body">
+                <h5 class="card-title">
+                    {% if reminder.is_completed %}<s>{% endif %}
+                    {{ reminder.title }}
+                    {% if reminder.is_completed %}</s>{% endif %}
+                    <span class="badge bg-{% if reminder.category == 'subscription' %}info{% elif reminder.category == 'maintenance' %}warning{% elif reminder.category == 'pest' %}danger{% else %}secondary{% endif %} float-end">
+                        {{ reminder.get_category_display }}
+                    </span>
+                </h5>
+                <p class="card-text">{{ reminder.description|default:''|truncatewords:20 }}</p>
+                <p class="card-text"><small>Due: {{ reminder.due_date }}</small></p>
+                {% if reminder.repeat != 'none' %}<p class="card-text"><small>🔄 {{ reminder.get_repeat_display }}</small></p>{% endif %}
+                <div class="btn-group">
+                    <a href="{% url 'tasks_app:reminder_toggle' reminder.pk %}" class="btn btn-sm btn-{% if reminder.is_completed %}warning{% else %}success{% endif %}">
+                        {% if reminder.is_completed %}Undo{% else %}Done{% endif %}
+                    </a>
+                    <a href="{% url 'tasks_app:reminder_edit' reminder.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'tasks_app:reminder_delete' reminder.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}<div class="col-12"><p class="text-center">No reminders.</p></div>
+    {% endfor %}
+</div>
+{% endblock %}
