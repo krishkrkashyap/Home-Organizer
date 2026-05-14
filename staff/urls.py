@@ -11,4 +11,6 @@ urlpatterns = [
     path('<int:pk>/leave/', views.mark_leave, name='mark_leave'),
     path('<int:pk>/advance/', views.request_advance, name='request_advance'),
     path('<int:pk>/calendar-data/', views.leave_calendar_data, name='calendar_data'),
+    path('<int:pk>/salary/', views.salary_generate, name='salary_generate'),
+    path('salary/', views.salary_list, name='salary_list'),
 ]

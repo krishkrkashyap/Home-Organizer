@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Salary Records{% endblock %}
+{% block content %}
+<h1>Salary Records</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr><th>Staff</th><th>Month/Year</th><th>Gross</th><th>Leave Deduct</th><th>Advance Deduct</th><th>Net</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for r in records %}
+            <tr>
+                <td>{{ r.staff.name }}</td>
+                <td>{{ r.month }}/{{ r.year }}</td>
+                <td>₹{{ r.gross_salary }}</td>
+                <td>₹{{ r.leave_deduction|floatformat:2 }}</td>
+                <td>₹{{ r.advance_deduction|floatformat:2 }}</td>
+                <td><strong>₹{{ r.net_salary|floatformat:2 }}</strong></td>
+                <td>{% if r.paid %}<span class="badge bg-success">Paid</span>{% else %}<span class="badge bg-warning">Pending</span>{% endif %}</td>
+            </tr>
+            {% empty %}<tr><td colspan="7" class="text-center">No records.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

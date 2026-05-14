@@ -64,3 +64,22 @@ class AdvanceRequest(models.Model):
 
     def __str__(self):
         return f'{self.staff.name} - ₹{self.amount}'
+
+class SalaryRecord(models.Model):
+    staff = models.ForeignKey(StaffProfile, on_delete=models.CASCADE, related_name='salary_records')
+    month = models.IntegerField()
+    year = models.IntegerField()
+    gross_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    total_leaves = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    leave_deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    advance_deduction = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    net_salary = models.DecimalField(max_digits=10, decimal_places=2)
+    paid = models.BooleanField(default=False)
+    paid_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ['staff', 'month', 'year']
+        ordering = ['-year', '-month']
+
+    def __str__(self):
+        return f'{self.staff.name} - {self.month}/{self.year} - ₹{self.net_salary}'

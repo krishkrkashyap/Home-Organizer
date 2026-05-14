@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.http import JsonResponse
-from .models import StaffProfile, LeaveRecord, AdvanceRequest
+from django.utils import timezone
+from datetime import datetime
+from .models import StaffProfile, LeaveRecord, AdvanceRequest, SalaryRecord
 from .forms import StaffProfileForm, LeaveForm, AdvanceForm
 
 def staff_list(request):
@@ -35,7 +37,7 @@ def staff_detail(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     leaves = LeaveRecord.objects.filter(staff=staff).order_by('-date')
     advances = AdvanceRequest.objects.filter(staff=staff).order_by('-created_at')
-    salary_records = []  # Will be populated in Task 7
+    salary_records = SalaryRecord.objects.filter(staff=staff).order_by('-year', '-month')
     return render(request, 'staff/staff_detail.html', {
         'staff': staff,
         'leaves': leaves,
@@ -92,3 +94,73 @@ def leave_calendar_data(request, pk):
             'textColor': '#000' if leave.leave_type == 'half' else '#fff',
         })
     return JsonResponse(events, safe=False)
+
+def salary_generate(request, pk):
+    staff = get_object_or_404(StaffProfile, pk=pk)
+    today = timezone.now()
+
+    if request.method == 'POST':
+        month = int(request.POST.get('month', today.month))
+        year = int(request.POST.get('year', today.year))
+
+        # Check existing
+        existing = SalaryRecord.objects.filter(staff=staff, month=month, year=year).first()
+        if existing and existing.paid:
+            messages.warning(request, 'Salary already paid for this month.')
+            return redirect('staff:detail', pk=staff.pk)
+
+        # Calculate leaves
+        leaves = LeaveRecord.objects.filter(staff=staff, date__month=month, date__year=year)
+        total_leaves = sum(0.5 if l.leave_type == 'half' else 1 for l in leaves)
+
+        # Calculate leave deduction
+        if staff.deduction_type == 'fixed_amount' and staff.deduction_value:
+            leave_deduction = float(staff.deduction_value) * total_leaves
+        else:
+            daily_rate = float(staff.salary_amount) / 30
+            leave_deduction = daily_rate * total_leaves
+
+        # Get unsettled advances
+        unsettled = AdvanceRequest.objects.filter(staff=staff, is_settled=False)
+        advance_deduction = sum(a.amount for a in unsettled)
+
+        gross = staff.salary_amount
+        net = gross - leave_deduction - advance_deduction
+
+        record, created = SalaryRecord.objects.update_or_create(
+            staff=staff, month=month, year=year,
+            defaults={
+                'gross_salary': gross,
+                'total_leaves': total_leaves,
+                'leave_deduction': leave_deduction,
+                'advance_deduction': advance_deduction,
+                'net_salary': net,
+            }
+        )
+
+        if 'confirm_paid' in request.POST:
+            record.paid = True
+            record.paid_date = today.date()
+            record.save()
+            # Settle advances
+            unsettled.update(is_settled=True)
+            staff.advance_balance = 0
+            staff.save()
+            messages.success(request, f'Salary paid: ₹{net}')
+            return redirect('staff:detail', pk=staff.pk)
+
+        return render(request, 'staff/salary_generate.html', {
+            'staff': staff, 'record': record, 'month': month, 'year': year,
+            'preview': True,
+        })
+
+    return render(request, 'staff/salary_generate.html', {
+        'staff': staff,
+        'month': today.month,
+        'year': today.year,
+        'preview': False,
+    })
+
+def salary_list(request):
+    records = SalaryRecord.objects.all().select_related('staff').order_by('-year', '-month')
+    return render(request, 'staff/salary_list.html', {'records': records})

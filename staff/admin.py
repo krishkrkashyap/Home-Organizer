@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import StaffProfile, LeaveRecord, AdvanceRequest
+from .models import StaffProfile, LeaveRecord, AdvanceRequest, SalaryRecord
 
 @admin.register(StaffProfile)
 class StaffProfileAdmin(admin.ModelAdmin):
@@ -16,3 +16,8 @@ class LeaveRecordAdmin(admin.ModelAdmin):
 class AdvanceRequestAdmin(admin.ModelAdmin):
     list_display = ['staff', 'amount', 'created_at', 'is_settled']
     list_filter = ['is_settled']
+
+@admin.register(SalaryRecord)
+class SalaryRecordAdmin(admin.ModelAdmin):
+    list_display = ['staff', 'month', 'year', 'gross_salary', 'net_salary', 'paid']
+    list_filter = ['paid', 'month', 'year']
