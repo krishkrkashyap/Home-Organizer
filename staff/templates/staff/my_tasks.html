@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}My Tasks{% endblock %}
+{% block page_title %}My Tasks{% endblock %}
+{% block content %}
+<div class="content-area">
+  <div class="page-header">
+    <h1>My Tasks</h1>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      {% if tasks %}
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+            <tr>
+              <td>{{ task.task_template.name }}</td>
+              <td>{{ task.task_template.category|default:'—' }}</td>
+              <td>{{ task.assigned_date }}</td>
+              <td>
+                {% if task.is_completed %}
+                <span class="badge badge-success">Done</span>
+                {% else %}
+                <span class="badge badge-warning">Pending</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <p class="text-muted">No tasks assigned yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

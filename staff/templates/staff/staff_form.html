@@ -2,22 +2,154 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <div class="content-area">
-    <div class="page-header">
-        <h1>{{ title }}</h1>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <div class="form-container">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="mt-3 d-flex gap-2">
-                        <button type="submit" class="btn btn-success">Save</button>
-                        <a href="{% url 'staff:list' %}" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
-            </div>
+  <div class="page-header">
+    <h1>{{ title }}</h1>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <!-- Tabs -->
+        <div class="form-tabs">
+          <button type="button" class="form-tab active" data-tab="profile">Profile</button>
+          {% if is_create %}
+          <button type="button" class="form-tab" data-tab="account">Account</button>
+          {% endif %}
+          <button type="button" class="form-tab" data-tab="salary">Salary</button>
         </div>
+
+        <!-- Tab: Profile -->
+        <div class="form-tab-content active" id="tab-profile">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Name</label>
+              {{ form.name }}
+              {% if form.name.errors %}<div class="field-error">{{ form.name.errors }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              {{ form.phone }}
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              {{ form.email }}
+            </div>
+            <div class="form-group">
+              <label>Role</label>
+              {{ form.role }}
+            </div>
+            <div class="form-group">
+              <label>Custom Role (optional)</label>
+              {{ form.custom_role }}
+            </div>
+            <div class="form-group">
+              <label>
+                {{ form.is_active }} Active
+              </label>
+            </div>
+            <div class="form-group full-width">
+              <label>Photo</label>
+              {{ form.photo }}
+              {% if form.instance.photo %}
+              <div class="photo-preview"><img src="{{ form.instance.photo.url }}" alt="preview"></div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        {% if is_create %}
+        <!-- Tab: Account -->
+        <div class="form-tab-content" id="tab-account">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Username</label>
+              {{ form.username }}
+              {% if form.username.errors %}<div class="field-error">{{ form.username.errors }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              {{ form.password }}
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              {{ form.confirm_password }}
+              {% if form.confirm_password.errors %}<div class="field-error">{{ form.confirm_password.errors }}</div>{% endif %}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <!-- Edit: show username as read-only -->
+        <div class="form-tab-content" id="tab-account">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Username</label>
+              {{ form.display_username }}
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Tab: Salary -->
+        <div class="form-tab-content" id="tab-salary">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Salary Amount (₹)</label>
+              {{ form.salary_amount }}
+            </div>
+            <div class="form-group">
+              <label>Salary Date (1-31)</label>
+              {{ form.salary_date }}
+            </div>
+            <div class="form-group">
+              <label>Deduction Type</label>
+              {{ form.deduction_type }}
+            </div>
+            <div class="form-group" id="deduction-value-group">
+              <label>Deduction Value (for fixed amount)</label>
+              {{ form.deduction_value }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i> {% if is_create %}Create Staff{% else %}Save Changes{% endif %}
+          </button>
+          <a href="{% url 'staff:list' %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Tab switching
+  document.querySelectorAll('.form-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.form-tab').forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.form-tab-content').forEach(function(t) { t.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+    });
+  });
+  // Toggle deduction value visibility
+  var deductionType = document.querySelector('[name=deduction_type]');
+  var deductionGroup = document.getElementById('deduction-value-group');
+  if (deductionType && deductionGroup) {
+    function toggleDeduction() {
+      deductionGroup.style.display = deductionType.value === 'fixed_amount' ? 'block' : 'none';
+    }
+    deductionType.addEventListener('change', toggleDeduction);
+    toggleDeduction();
+  }
+});
+</script>
 {% endblock %}

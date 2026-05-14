@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Dashboard{% endblock %}
+{% block page_title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="content-area">
+  <!-- Welcome Card -->
+  <div class="staff-welcome">
+    <div class="welcome-avatar">
+      {% if staff.photo %}
+      <img src="{{ staff.photo.url }}" alt="{{ staff.name }}">
+      {% else %}
+      <span>{{ staff.name|make_list|first|upper }}</span>
+      {% endif %}
+    </div>
+    <div class="welcome-info">
+      <h2>{{ staff.name }}</h2>
+      <span class="role-badge">{{ staff.custom_role|default:staff.get_role_display }}</span>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" style="margin-top:1.5rem;">
+    <div class="stat-card primary">
+      <span class="stat-icon">📋</span>
+      <div class="stat-label">Today's Tasks</div>
+      <div class="stat-value">{{ today_tasks|length }}</div>
+    </div>
+    <div class="stat-card success">
+      <span class="stat-icon">💰</span>
+      <div class="stat-label">Latest Salary</div>
+      <div class="stat-value">{% if recent_salary %}₹{{ recent_salary.net_salary }}{% else %}—{% endif %}</div>
+    </div>
+    {% if staff.role == 'cook' %}
+    <div class="stat-card warning">
+      <span class="stat-icon">🍳</span>
+      <div class="stat-label">Today's Menus</div>
+      <div class="stat-value">{{ today_menus|length }}</div>
+    </div>
+    {% endif %}
+    {% if staff.role == 'marketer' %}
+    <div class="stat-card danger">
+      <span class="stat-icon">⚠️</span>
+      <div class="stat-label">Low Stock</div>
+      <div class="stat-value">{{ low_pantry|length }}</div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Today's Tasks -->
+  <div class="card" style="margin-top:1.5rem;">
+    <div class="card-header">
+      <span>Today's Tasks — {{ today|date:"l, d M" }}</span>
+      <a href="{% url 'staff:my_tasks' %}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="card-body">
+      {% if today_tasks %}
+      <div class="task-list">
+        {% for task in today_tasks %}
+        <div class="task-item">
+          <span class="task-name">{{ task.task_template.name }}</span>
+          <span class="task-badge">{{ task.task_template.category|default:'General' }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-muted">No tasks assigned for today. Good work! 🎉</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Role-Specific Sections -->
+  {% if staff.role == 'cook' %}
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-header"><span>Today's Menu Plans</span></div>
+    <div class="card-body">
+      {% if today_menus %}
+      {% for menu in today_menus %}
+      <div class="menu-mini">
+        <span class="meal-badge">{{ menu.get_meal_type_display }}</span>
+        <strong>{{ menu.dish_name }}</strong>
+        {% if menu.is_completed %}<span class="badge badge-success">Done</span>{% endif %}
+      </div>
+      {% endfor %}
+      {% else %}
+      <p class="text-muted">No menus planned for today.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if staff.role == 'marketer' %}
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-header"><span>Low Pantry Items</span></div>
+    <div class="card-body">
+      {% if low_pantry %}
+      <ul>
+        {% for item in low_pantry %}
+        <li><strong>{{ item.name }}</strong> — {{ item.quantity }} {{ item.unit }} (min: {{ item.min_quantity }})</li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="text-muted">All items well stocked.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Quick Links -->
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-header"><span>Quick Links</span></div>
+    <div class="card-body">
+      <div class="d-flex gap-2" style="flex-wrap:wrap;">
+        <a href="{% url 'staff:my_profile' %}" class="btn btn-outline-primary">My Profile</a>
+        <a href="{% url 'staff:my_salary' %}" class="btn btn-outline-success">My Salary</a>
+        <a href="{% url 'staff:my_tasks' %}" class="btn btn-outline-info">My Tasks</a>
+        {% if staff.role == 'cook' %}
+        <a href="{% url 'kitchen:menu_list' %}" class="btn btn-outline-warning">Menu Plans</a>
+        <a href="{% url 'kitchen:inventory_list' %}" class="btn btn-outline-secondary">Inventory</a>
+        {% endif %}
+        {% if staff.role == 'marketer' %}
+        <a href="{% url 'kitchen:grocery_create' %}" class="btn btn-outline-success">New Grocery List</a>
+        <a href="{% url 'kitchen:pantry_list' %}" class="btn btn-outline-primary">Pantry</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

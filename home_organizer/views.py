@@ -1,5 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+
+
+def redirect_on_login(request):
+    """Redirect users to role-appropriate dashboard after login."""
+    if request.user.is_superuser:
+        return redirect('dashboard')
+    try:
+        staff = request.user.staff_profile
+        return redirect('staff:my_dashboard')
+    except Exception:
+        return redirect('dashboard')
 
 
 @login_required

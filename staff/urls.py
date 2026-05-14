@@ -14,6 +14,8 @@ urlpatterns = [
     path('<int:pk>/salary/', views.salary_generate, name='salary_generate'),
     path('salary/', views.salary_list, name='salary_list'),
     # Staff self-service
+    path('my/dashboard/', views.my_dashboard, name='my_dashboard'),
     path('my/profile/', views.my_profile, name='my_profile'),
     path('my/salary/', views.my_salary, name='my_salary'),
+    path('my/tasks/', views.my_tasks, name='my_tasks'),
 ]

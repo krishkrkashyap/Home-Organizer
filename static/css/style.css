@@ -351,10 +351,83 @@ body {
     color: white;
 }
 
+.btn-outline-info {
+    background: transparent;
+    border: 1.5px solid #17a2b8;
+    color: #17a2b8;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+.btn-outline-info:hover {
+    background: #17a2b8;
+    color: white;
+}
+.btn-outline-warning {
+    background: transparent;
+    border: 1.5px solid #C4956A;
+    color: #C4956A;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+.btn-outline-warning:hover {
+    background: #C4956A;
+    color: white;
+}
+.btn-outline-secondary {
+    background: transparent;
+    border: 1.5px solid #6c757d;
+    color: #6c757d;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+.btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+}
 .btn-outline-success {
     background: transparent;
     border: 2px solid var(--success);
     color: var(--success);
+}
+.btn-outline {
+    background: transparent;
+    border: 1.5px solid #e0d6cc;
+    color: #7a7a7a;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: all 0.2s;
+}
+.btn-outline:hover {
+    background: #e0d6cc;
+    color: #333;
+    border-color: #d0c4b8;
 }
 .btn-outline-success:hover {
     background: var(--success);
@@ -678,4 +751,190 @@ tbody tr:hover {
 /* ========= TABLE WRAPPER ========= */
 .table-responsive {
     overflow-x: auto;
+}
+
+/* ====== Form Tabs ====== */
+.form-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #e0d6cc;
+    margin-bottom: 1.5rem;
+}
+.form-tab {
+    padding: 0.75rem 1.5rem;
+    background: none;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #7a7a7a;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+.form-tab:hover { color: #1A3C34; }
+.form-tab.active {
+    color: #1A3C34;
+}
+.form-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #1A3C34;
+}
+.form-tab-content { display: none; }
+.form-tab-content.active { display: block; }
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+.form-grid .full-width { grid-column: 1 / -1; }
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #333;
+    margin-bottom: 0.35rem;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1.5px solid #e0d6cc;
+    border-radius: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    background: white;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #C4956A;
+    box-shadow: 0 0 0 3px rgba(196, 149, 106, 0.15);
+}
+.form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e0d6cc;
+    display: flex;
+    gap: 0.75rem;
+}
+.field-error {
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+.photo-preview {
+    margin-top: 0.5rem;
+}
+.photo-preview img {
+    max-height: 120px;
+    border-radius: 8px;
+    border: 2px solid #e0d6cc;
+}
+
+/* ====== Staff Welcome ====== */
+.staff-welcome {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: linear-gradient(135deg, #1A3C34, #2a5a4e);
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    color: white;
+}
+.welcome-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #C4956A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.welcome-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.welcome-info h2 {
+    font-family: 'Prata', serif;
+    margin: 0;
+    font-size: 1.5rem;
+}
+.role-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 0.2rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 0.25rem;
+}
+
+/* ====== Task List ====== */
+.task-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.75rem;
+    background: #F8F3EC;
+    border-radius: 8px;
+}
+.task-name { font-weight: 600; font-size: 0.95rem; }
+.task-badge {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    background: #e0d6cc;
+    color: #7a7a7a;
+}
+
+/* ====== Menu Mini ====== */
+.menu-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0d6cc;
+}
+.menu-mini:last-child { border-bottom: none; }
+.meal-badge {
+    background: #C4956A;
+    color: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.stat-card.danger { border-left-color: #dc3545; }
+
+/* ====== Badge Overrides ====== */
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }

@@ -23,15 +23,11 @@
             </div>
         </div>
         <ul class="nav-menu">
+            {% if request.user.is_superuser %}
             <li><a href="{% url 'dashboard' %}" class="nav-link"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a></li>
             <li class="nav-section">Staff & Salary</li>
-            {% if request.user.is_superuser %}
             <li><a href="{% url 'staff:list' %}" class="nav-link"><i class="bi bi-people"></i><span>Staff</span></a></li>
             <li><a href="{% url 'staff:salary_list' %}" class="nav-link"><i class="bi bi-cash-coin"></i><span>Salaries</span></a></li>
-            {% else %}
-            <li><a href="{% url 'staff:my_profile' %}" class="nav-link"><i class="bi bi-person"></i><span>My Profile</span></a></li>
-            <li><a href="{% url 'staff:my_salary' %}" class="nav-link"><i class="bi bi-cash-coin"></i><span>My Salary</span></a></li>
-            {% endif %}
             <li class="nav-section">Kitchen</li>
             <li><a href="{% url 'kitchen:pantry_list' %}" class="nav-link"><i class="bi bi-basket"></i><span>Pantry</span></a></li>
             <li><a href="{% url 'kitchen:grocery_list' %}" class="nav-link"><i class="bi bi-cart-check"></i><span>Grocery</span></a></li>
@@ -40,6 +36,25 @@
             <li class="nav-section">Productivity</li>
             <li><a href="{% url 'tasks_app:task_dashboard' %}" class="nav-link"><i class="bi bi-list-check"></i><span>Tasks</span></a></li>
             <li><a href="{% url 'tasks_app:reminder_list' %}" class="nav-link"><i class="bi bi-bell"></i><span>Reminders</span></a></li>
+            {% else %}
+            {% with role=request.user.staff_profile.role %}
+            <li><a href="{% url 'staff:my_dashboard' %}" class="nav-link"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
+            <li class="nav-section">My Account</li>
+            <li><a href="{% url 'staff:my_profile' %}" class="nav-link"><i class="bi bi-person"></i><span>My Profile</span></a></li>
+            <li><a href="{% url 'staff:my_salary' %}" class="nav-link"><i class="bi bi-cash-coin"></i><span>My Salary</span></a></li>
+            <li><a href="{% url 'staff:my_tasks' %}" class="nav-link"><i class="bi bi-list-check"></i><span>My Tasks</span></a></li>
+            {% if role == 'cook' %}
+            <li class="nav-section">Kitchen</li>
+            <li><a href="{% url 'kitchen:menu_list' %}" class="nav-link"><i class="bi bi-book"></i><span>Menu Plans</span></a></li>
+            <li><a href="{% url 'kitchen:inventory_list' %}" class="nav-link"><i class="bi bi-box-seam"></i><span>Inventory</span></a></li>
+            {% endif %}
+            {% if role == 'marketer' %}
+            <li class="nav-section">Kitchen</li>
+            <li><a href="{% url 'kitchen:grocery_list' %}" class="nav-link"><i class="bi bi-cart-check"></i><span>Grocery</span></a></li>
+            <li><a href="{% url 'kitchen:pantry_list' %}" class="nav-link"><i class="bi bi-basket"></i><span>Pantry</span></a></li>
+            {% endif %}
+            {% endwith %}
+            {% endif %}
         </ul>
         <div class="sidebar-footer">
             {% if request.user.is_superuser %}

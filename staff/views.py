@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from .models import StaffProfile, LeaveRecord, AdvanceRequest, SalaryRecord
-from .forms import StaffProfileForm, LeaveForm, AdvanceForm
+from .forms import StaffProfileForm, StaffCreateForm, StaffEditForm, LeaveForm, AdvanceForm
 
 @login_required
 def staff_list(request):
@@ -15,27 +15,28 @@ def staff_list(request):
 @login_required
 def staff_create(request):
     if request.method == 'POST':
-        form = StaffProfileForm(request.POST, request.FILES)
+        form = StaffCreateForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Staff profile created.')
+            staff = form.save()
+            messages.success(request, f'Staff {staff.name} created. Username: {form.cleaned_data["username"]}')
             return redirect('staff:list')
     else:
-        form = StaffProfileForm()
-    return render(request, 'staff/staff_form.html', {'form': form, 'title': 'Add Staff'})
+        form = StaffCreateForm()
+    return render(request, 'staff/staff_form.html', {'form': form, 'title': 'Add Staff', 'is_create': True})
 
+@login_required
 @login_required
 def staff_edit(request, pk):
     staff = get_object_or_404(StaffProfile, pk=pk)
     if request.method == 'POST':
-        form = StaffProfileForm(request.POST, request.FILES, instance=staff)
+        form = StaffEditForm(request.POST, request.FILES, instance=staff)
         if form.is_valid():
             form.save()
             messages.success(request, 'Staff profile updated.')
             return redirect('staff:detail', pk=staff.pk)
     else:
-        form = StaffProfileForm(instance=staff)
-    return render(request, 'staff/staff_form.html', {'form': form, 'title': 'Edit Staff'})
+        form = StaffEditForm(instance=staff)
+    return render(request, 'staff/staff_form.html', {'form': form, 'title': 'Edit Staff', 'is_create': False})
 
 @login_required
 def staff_detail(request, pk):
@@ -178,6 +179,47 @@ def salary_list(request):
 
 
 # --- Staff Self-Service (read-only) ---
+
+@login_required
+def my_dashboard(request):
+    try:
+        staff = request.user.staff_profile
+    except StaffProfile.DoesNotExist:
+        messages.error(request, 'No staff profile linked.')
+        return redirect('dashboard')
+
+    today = timezone.now().date()
+    role = staff.role
+    context = {
+        'staff': staff,
+        'today': today,
+        'today_tasks': AssignedTask.objects.filter(staff=staff, assigned_date=today, is_completed=False),
+        'all_tasks': AssignedTask.objects.filter(staff=staff).order_by('-assigned_date')[:10],
+        'recent_salary': SalaryRecord.objects.filter(staff=staff).order_by('-year', '-month').first(),
+    }
+
+    if role == 'cook':
+        from kitchen.models import MenuPlan, InventoryItem
+        context['today_menus'] = MenuPlan.objects.filter(date=today)
+        context['inventory_items'] = InventoryItem.objects.all()[:5]
+    elif role == 'marketer':
+        from kitchen.models import GroceryList, PantryItem
+        context['recent_grocery'] = GroceryList.objects.all().order_by('-created_at')[:3]
+        context['low_pantry'] = [p for p in PantryItem.objects.all() if p.is_low()]
+
+    return render(request, 'staff/my_dashboard.html', context)
+
+
+@login_required
+def my_tasks(request):
+    try:
+        staff = request.user.staff_profile
+    except StaffProfile.DoesNotExist:
+        messages.error(request, 'No staff profile linked.')
+        return redirect('dashboard')
+
+    tasks = AssignedTask.objects.filter(staff=staff).select_related('task_template__category').order_by('-assigned_date')
+    return render(request, 'staff/my_tasks.html', {'tasks': tasks, 'staff': staff})
 
 @login_required
 def my_profile(request):
