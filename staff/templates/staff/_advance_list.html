@@ -1,0 +1,12 @@
+<table class="table table-sm">
+    <tr><th>Date</th><th>Amount</th><th>Note</th><th>Settled</th></tr>
+    {% for a in advances %}
+    <tr>
+        <td>{{ a.created_at|date }}</td>
+        <td>₹{{ a.amount }}</td>
+        <td>{{ a.note|default:'—' }}</td>
+        <td>{% if a.is_settled %}✅{% else %}❌{% endif %}</td>
+    </tr>
+    {% empty %}<tr><td colspan="4" class="text-center">No advances.</td></tr>
+    {% endfor %}
+</table>

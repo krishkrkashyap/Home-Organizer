@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}{{ staff.name }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h3>{{ staff.name }}</h3>
+                <p><strong>Role:</strong> {{ staff.custom_role|default:staff.get_role_display }}</p>
+                <p><strong>Phone:</strong> {{ staff.phone|default:'—' }}</p>
+                <p><strong>Email:</strong> {{ staff.email|default:'—' }}</p>
+                <p><strong>Salary:</strong> ₹{{ staff.salary_amount }}</p>
+                <p><strong>Salary Date:</strong> {{ staff.salary_date }}</p>
+                <p><strong>Deduction:</strong> {{ staff.get_deduction_type_display }}</p>
+                <p><strong>Advance Balance:</strong> ₹{{ staff.advance_balance }}</p>
+                <a href="{% url 'staff:edit' staff.pk %}" class="btn btn-warning">Edit</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <ul class="nav nav-tabs" id="staffTabs">
+            <li class="nav-item"><a class="nav-link active" href="#leaves" data-bs-toggle="tab">Leaves</a></li>
+            <li class="nav-item"><a class="nav-link" href="#advances" data-bs-toggle="tab">Advances</a></li>
+            <li class="nav-item"><a class="nav-link" href="#salary" data-bs-toggle="tab">Salary</a></li>
+        </ul>
+        <div class="tab-content mt-3">
+            <div class="tab-pane active" id="leaves">
+                {% include 'staff/_leave_list.html' %}
+            </div>
+            <div class="tab-pane" id="advances">
+                {% include 'staff/_advance_list.html' %}
+            </div>
+            <div class="tab-pane" id="salary">
+                {% include 'staff/_salary_list.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

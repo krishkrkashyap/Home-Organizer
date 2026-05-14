@@ -1,0 +1,28 @@
+[✓] 
+Task 1: Django project bootstrap
+[•] 
+Task 2: Base template and dashboard
+[ ] 
+Task 3: StaffProfile model
+[ ] 
+Task 4: Staff CRUD views and forms
+[ ] 
+Task 5: LeaveRecord and AdvanceRequest models + leave calendar
+[ ] 
+Task 6: FullCalendar.js integration on staff detail
+[ ] 
+Task 7: SalaryRecord model and salary generation
+[ ] 
+Task 8: Kitchen app models (Pantry, Grocery, Inventory, Menu)
+[ ] 
+Task 9: Kitchen CRUD views — Pantry + Inventory
+[ ] 
+Task 10: Grocery with auto-compare + Menu planning views
+[ ] 
+Task 11: Tasks app models
+[ ] 
+Task 12: Tasks CRUD views + reminder CRUD
+[ ] 
+Task 13: Task generation management command
+[ ] 
+Task 14: Admin setup and final polish

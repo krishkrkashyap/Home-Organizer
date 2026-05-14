@@ -1,0 +1,11 @@
+<table class="table table-sm">
+    <tr><th>Date</th><th>Type</th><th>Note</th></tr>
+    {% for l in leaves %}
+    <tr>
+        <td>{{ l.date }}</td>
+        <td><span class="badge bg-{% if l.leave_type == 'full' %}danger{% else %}warning{% endif %}">{{ l.get_leave_type_display }}</span></td>
+        <td>{{ l.note|default:'—' }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="3" class="text-center">No leaves.</td></tr>
+    {% endfor %}
+</table>

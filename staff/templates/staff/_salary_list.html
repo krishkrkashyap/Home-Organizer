@@ -1,0 +1,14 @@
+<table class="table table-sm">
+    <tr><th>Month</th><th>Gross</th><th>Leaves Deducted</th><th>Advance Deducted</th><th>Net</th><th>Paid</th></tr>
+    {% for s in salary_records %}
+    <tr>
+        <td>{{ s.month }}/{{ s.year }}</td>
+        <td>₹{{ s.gross_salary }}</td>
+        <td>₹{{ s.leave_deduction }}</td>
+        <td>₹{{ s.advance_deduction }}</td>
+        <td><strong>₹{{ s.net_salary }}</strong></td>
+        <td>{% if s.paid %}✅{% else %}❌{% endif %}</td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="text-center">No salary records.</td></tr>
+    {% endfor %}
+</table>
