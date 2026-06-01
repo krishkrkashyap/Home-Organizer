@@ -5,7 +5,7 @@ from .models import Notification
 
 def generate_alerts(user):
     """On-demand checks: create notifications for time-sensitive alerts."""
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     if user.is_superuser:
         _check_overdue_tasks_admin(user, today)
@@ -26,7 +26,7 @@ def _check_overdue_tasks_admin(user, today):
     """Notify admin of all overdue tasks across staff."""
     from tasks_app.models import AssignedTask
     overdue = AssignedTask.objects.filter(
-        is_completed=False, assigned_date__lt=today
+        is_completed=False, assigned_date__date__lt=today
     )
     if overdue.exists() and not _already_notified_today(user, 'task_overdue'):
         count = overdue.count()
@@ -47,7 +47,7 @@ def _check_overdue_tasks_staff(user, today):
         return
     from tasks_app.models import AssignedTask
     overdue = AssignedTask.objects.filter(
-        staff=staff, is_completed=False, assigned_date__lt=today
+        staff=staff, is_completed=False, assigned_date__date__lt=today
     )
     if overdue.exists() and not _already_notified_today(user, 'task_overdue'):
         count = overdue.count()
@@ -67,11 +67,17 @@ def _check_salary_reminders(user, today):
     for staff in upcoming:
         due = _next_salary_date(staff.salary_date, today)
         if due and 0 <= (due - today).days <= 3:
-            key = f'salary_{staff.id}'
-            if not _already_notified_today(user, key):
+            # Dedup: check if we already sent a salary_reminder for this staff today
+            already = Notification.objects.filter(
+                recipient=user,
+                type='salary_reminder',
+                title__icontains=staff.name,
+                created_at__date=today,
+            ).exists()
+            if not already:
                 Notification.objects.create(
                     recipient=user,
-                    title='Salary Due',
+                    title=f'Salary Due — {staff.name}',
                     message=f'{staff.name} salary of ₹{staff.salary_amount} due on {due}',
                     type='salary_reminder',
                     link=f'/staff/{staff.pk}/salary/',
@@ -85,16 +91,23 @@ def _check_reminders(user, today):
         is_completed=False, due_date__gte=today,
         due_date__lte=today + timedelta(days=3)
     )
+    existing_today = Notification.objects.filter(
+        recipient=user, type='reminder_due',
+        created_at__date=today,
+    ).values_list('title', flat=True)
+    existing_titles = set(existing_today)
+
     for r in upcoming:
-        key = f'reminder_{r.id}'
-        if not _already_notified_today(user, key):
-            Notification.objects.create(
-                recipient=user,
-                title='Reminder Coming Up',
-                message=f'"{r.title}" is due on {r.due_date}',
-                type='reminder_due',
-                link='/tasks/reminders/',
-            )
+        title = f'Reminder Due — {r.title}'
+        if title in existing_titles:
+            continue
+        Notification.objects.create(
+            recipient=user,
+            title=title,
+            message=f'"{r.title}" is due on {r.due_date}',
+            type='reminder_due',
+            link='/tasks/reminders/',
+        )
 
 
 def _next_salary_date(day, today):

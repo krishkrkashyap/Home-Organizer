@@ -1,0 +1,22 @@
+name: home-organizer
+service:
+  port: 8000
+  health:
+    path: /
+  build:
+    command: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    run: gunicorn home_organizer.wsgi --bind 0.0.0.0:8000
+  env:
+    - key: SECRET_KEY
+      value: "CHANGE_ME_TO_A_RANDOM_SECRET"
+    - key: DEBUG
+      value: "False"
+    - key: ALLOWED_HOSTS
+      value: ".koyeb.app"
+    - key: CSRF_TRUSTED_ORIGINS
+      value: "https://*.koyeb.app"
+    - key: DJANGO_SETTINGS_MODULE
+      value: "home_organizer.settings"
